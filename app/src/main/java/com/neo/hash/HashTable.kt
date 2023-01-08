@@ -1,29 +1,64 @@
 package com.neo.hash
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.CacheDrawScope
+import androidx.compose.ui.draw.DrawResult
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
-data class HashConfig(
-    val hashColor: Color,
-    val symbolsColor: Color,
-    val lineColor: Color
+data class HashTableConfig(
+    val hash: Hash,
+    val symbol: Symbol,
+    val scratch: Scratch
 ) {
-    companion object {
 
+    sealed interface Line {
+        val color: Color
+        val width: Dp
+    }
+
+    data class Hash(
+        override val color: Color,
+        override val width: Dp
+    ) : Line
+
+    data class Symbol(
+        override val color: Color,
+        override val width: Dp
+    ) : Line
+
+    data class Scratch(
+        override val color: Color,
+        override val width: Dp
+    ) : Line
+
+    companion object {
         @Composable
         fun getDefault(
-            hashColor: Color = colors.onBackground,
-            symbolsColor: Color = colors.primary,
-            lineColor: Color = symbolsColor.copy(alpha = 0.5f)
-        ) = HashConfig(
-            hashColor = hashColor,
-            symbolsColor = symbolsColor,
-            lineColor = lineColor
+            hash: Hash = Hash(
+                color = colors.onBackground,
+                width = 2.dp
+            ),
+            symbol: Symbol = Symbol(
+                color = colors.primary,
+                width = 2.dp
+            ),
+            scratch: Scratch = Scratch(
+                color = symbol.color.copy(alpha = 0.5f),
+                width = 4.dp
+            )
+        ) = HashTableConfig(
+            hash = hash,
+            symbol = symbol,
+            scratch = scratch
         )
     }
 }
@@ -33,11 +68,58 @@ fun HashTable(
     hash: HashState,
     modifier: Modifier = Modifier,
     onClick: (HashState.Block) -> Unit,
-    config: HashConfig = HashConfig.getDefault()
+    config: HashTableConfig = HashTableConfig.getDefault()
 ) = Box(modifier) {
-    Text(
-        text = "Olá, mundo!",
-        modifier = Modifier.align(Alignment.Center)
+    DrawHash(
+        rows = hash.rows,
+        columns = hash.columns,
+        config = config.hash
     )
 }
 
+@Composable
+fun DrawHash(
+    rows: Int,
+    columns: Int,
+    config: HashTableConfig.Hash,
+    modifier: Modifier = Modifier
+) = DrawWithCache(modifier) {
+
+    val rowSize = size.height / rows
+    val columnSize = size.width / columns
+
+    onDrawBehind {
+
+        fun drawLine(
+            start: Offset,
+            end: Offset
+        ) = drawLine(
+            color = config.color,
+            start = start,
+            end = end,
+            strokeWidth = config.width.toPx(),
+            cap = StrokeCap.Round
+        )
+
+        fun drawRow(position: Int) = drawLine(
+            start = Offset(0f, rowSize * position),
+            end = Offset(size.width, rowSize * position),
+        )
+
+        fun drawColumn(position: Int) = drawLine(
+            start = Offset(columnSize * position, 0f),
+            end = Offset(columnSize * position, size.height),
+        )
+
+        for (index in rows..columns) {
+            drawRow(index)
+            drawColumn(index)
+        }
+    }
+}
+
+@Composable
+fun DrawWithCache(
+    modifier: Modifier = Modifier,
+    onBuildDrawCache: CacheDrawScope.() -> DrawResult
+) = Spacer(modifier.drawWithCache(onBuildDrawCache))
