@@ -2,6 +2,7 @@ package com.neo.hash
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -73,7 +74,8 @@ fun HashTable(
     DrawHash(
         rows = hash.rows,
         columns = hash.columns,
-        config = config.hash
+        config = config.hash,
+        modifier = Modifier.matchParentSize()
     )
 }
 
@@ -87,6 +89,7 @@ fun DrawHash(
 
     val rowSize = size.height / rows
     val columnSize = size.width / columns
+    val lineWidth = config.width.toPx()
 
     onDrawBehind {
 
@@ -97,7 +100,7 @@ fun DrawHash(
             color = config.color,
             start = start,
             end = end,
-            strokeWidth = config.width.toPx(),
+            strokeWidth = lineWidth,
             cap = StrokeCap.Round
         )
 
@@ -111,8 +114,11 @@ fun DrawHash(
             end = Offset(columnSize * position, size.height),
         )
 
-        for (index in rows..columns) {
+        for (index in 1 until rows) {
             drawRow(index)
+        }
+
+        for (index in 1 until columns) {
             drawColumn(index)
         }
     }
