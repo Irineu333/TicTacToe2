@@ -1,10 +1,12 @@
 package com.neo.hash
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
@@ -71,16 +73,88 @@ fun HashTable(
     onClick: (HashState.Block) -> Unit,
     config: HashTableConfig = HashTableConfig.getDefault()
 ) = Box(modifier) {
-    DrawHash(
+    Blocks(
+        rows = hash.rows,
+        columns = hash.columns,
+        blocks = hash.blocks,
+        config = config.symbol,
+        modifier = Modifier.fillMaxSize()
+    )
+    Hash(
         rows = hash.rows,
         columns = hash.columns,
         config = config.hash,
-        modifier = Modifier.matchParentSize()
+        modifier = Modifier.fillMaxSize()
     )
 }
 
 @Composable
-fun DrawHash(
+fun Blocks(
+    rows: Int,
+    columns: Int,
+    blocks: List<List<HashState.Block>>,
+    config: HashTableConfig.Symbol,
+    modifier: Modifier = Modifier
+) = BoxWithConstraints(modifier) {
+
+    val rowSize = maxHeight / rows
+    val columnSize = maxWidth / columns
+
+    for (row in 0 until rows) {
+        for (column in 0 until columns) {
+
+            val block = blocks[row][column]
+
+            Block(
+                block = block,
+                onClick = {},
+                config = config,
+                modifier = Modifier
+                    .size(
+                        width = columnSize,
+                        height = rowSize
+                    )
+                    .offset(
+                        x = columnSize * column,
+                        y = rowSize * row,
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun Block(
+    block: HashState.Block,
+    onClick: (HashState.Block) -> Unit,
+    config: HashTableConfig.Symbol,
+    modifier: Modifier = Modifier
+) = Box(
+    modifier = modifier
+        .onBlockClick(block, onClick)
+        .background(Color.Red),
+) {
+    Text(
+        text = "(${block.row},${block.column})",
+        modifier = Modifier.align(Alignment.Center)
+    )
+}
+
+private fun Modifier.onBlockClick(
+    block: HashState.Block,
+    onClick: (HashState.Block) -> Unit
+): Modifier {
+    return if (block.player == null) {
+        clickable {
+            onClick(block)
+        }
+    } else {
+        this
+    }
+}
+
+@Composable
+fun Hash(
     rows: Int,
     columns: Int,
     config: HashTableConfig.Hash,
