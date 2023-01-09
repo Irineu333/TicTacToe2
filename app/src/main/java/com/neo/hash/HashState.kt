@@ -6,11 +6,29 @@ data class HashState(
     val blocks: List<List<Block>> = emptyBlocks(rows, columns)
 ) {
 
+    operator fun get(row: Int, column: Int): Block {
+        return blocks[row][column]
+    }
+
+    fun changePlayer(
+        block: Block,
+        newPlayer: Block.Player?
+    ) = copy(
+        blocks = blocks.update(block.row) { columns ->
+            columns.update(block.column) {
+                it.copy(
+                    player = newPlayer
+                )
+            }
+        }
+    )
+
     data class Block(
         val row: Int,
         val column: Int,
         val player: Player? = null
     ) {
+
         enum class Player {
             X,
             O
@@ -28,6 +46,18 @@ data class HashState(
                     column = column
                 )
             }
+        }
+    }
+}
+
+private fun <E> List<E>.update(index: Int, update: (E) -> E): List<E> {
+    return List(size) {
+        val element = get(it)
+
+        if (it == index) {
+            update(element)
+        } else {
+            element
         }
     }
 }

@@ -27,7 +27,9 @@ class MainActivity : ComponentActivity() {
 
                         HashTable(
                             hash = hashState,
-                            onClick = {},
+                            onClick = {
+                                viewModel.test(it)
+                            },
                             modifier = Modifier.aspectRatio(1f)
                         )
                     }

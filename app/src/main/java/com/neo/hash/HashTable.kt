@@ -1,19 +1,21 @@
 package com.neo.hash
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -35,12 +37,14 @@ data class HashTableConfig(
 
     data class Symbol(
         override val color: Color,
-        override val width: Dp
+        override val width: Dp,
+        val animate: Boolean
     ) : Line
 
     data class Scratch(
         override val color: Color,
-        override val width: Dp
+        override val width: Dp,
+        val animate: Boolean
     ) : Line
 
     companion object {
@@ -52,11 +56,13 @@ data class HashTableConfig(
             ),
             symbol: Symbol = Symbol(
                 color = colors.primary,
-                width = 2.dp
+                width = 2.dp,
+                animate = true
             ),
             scratch: Scratch = Scratch(
                 color = symbol.color.copy(alpha = 0.5f),
-                width = 4.dp
+                width = 4.dp,
+                animate = true
             )
         ) = HashTableConfig(
             hash = hash,
@@ -74,10 +80,9 @@ fun HashTable(
     config: HashTableConfig = HashTableConfig.getDefault()
 ) = Box(modifier) {
     Blocks(
-        rows = hash.rows,
-        columns = hash.columns,
-        blocks = hash.blocks,
+        hash = hash,
         config = config.symbol,
+        onClick = onClick,
         modifier = Modifier.fillMaxSize()
     )
     Hash(
@@ -90,24 +95,23 @@ fun HashTable(
 
 @Composable
 fun Blocks(
-    rows: Int,
-    columns: Int,
-    blocks: List<List<HashState.Block>>,
+    hash : HashState,
     config: HashTableConfig.Symbol,
+    onClick: (HashState.Block) -> Unit,
     modifier: Modifier = Modifier
 ) = BoxWithConstraints(modifier) {
 
-    val rowSize = maxHeight / rows
-    val columnSize = maxWidth / columns
+    val rowSize = maxHeight / hash.rows
+    val columnSize = maxWidth / hash.columns
 
-    for (row in 0 until rows) {
-        for (column in 0 until columns) {
+    for (row in 0 until hash.rows) {
+        for (column in 0 until hash.columns) {
 
-            val block = blocks[row][column]
+            val block = hash[row, column]
 
             Block(
                 block = block,
-                onClick = {},
+                onClick = onClick,
                 config = config,
                 modifier = Modifier
                     .size(
@@ -129,15 +133,109 @@ fun Block(
     onClick: (HashState.Block) -> Unit,
     config: HashTableConfig.Symbol,
     modifier: Modifier = Modifier
-) = Box(
-    modifier = modifier
-        .onBlockClick(block, onClick)
-        .background(Color.Red),
+) = Box(modifier.onBlockClick(block, onClick)) {
+    if (block.player != null) {
+        Player(
+            player = block.player,
+            config = config,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun Player(
+    player: HashState.Block.Player,
+    config: HashTableConfig.Symbol,
+    modifier: Modifier = Modifier
 ) {
-    Text(
-        text = "(${block.row},${block.column})",
-        modifier = Modifier.align(Alignment.Center)
-    )
+    val animation = remember { Animatable(if (config.animate) 0f else 2f) }
+
+    LaunchedEffect(player, config) {
+        animation.animateTo(
+            targetValue = 2f
+        )
+    }
+
+    CanvasWithCache(modifier) {
+        onDrawBehind {
+            val stroke = Stroke(
+                width = config.width.toPx(),
+                cap = StrokeCap.Round
+            )
+
+            val size = Size(size.height, size.width)
+
+            when (player) {
+                HashState.Block.Player.O -> {
+
+                    drawArc(
+                        color = config.color,
+                        startAngle = 0f,
+                        sweepAngle =  360f * animation.value / 2f,
+                        size = size,
+                        useCenter = false,
+                        style = stroke
+                    )
+                }
+                HashState.Block.Player.X -> {
+
+                    val width1 = when (animation.value) {
+                        in 0f..1f -> size.width * animation.value
+                        else -> size.width
+                    }
+
+                    val height1 = when (animation.value) {
+                        in 0f..1f -> size.height * animation.value
+                        else -> size.height
+                    }
+
+                    val width2 = when (animation.value) {
+                        in 1f..2f -> size.width * animation.value.dec()
+                        else -> 0f
+                    }
+
+                    val height2 = when (animation.value) {
+                        in 1f..2f -> size.height * animation.value.dec()
+                        else -> 0f
+                    }
+
+                    fun drawLine(
+                        start: Offset,
+                        end: Offset
+                    ) = drawLine(
+                        color = config.color,
+                        start = start,
+                        end = end,
+                        strokeWidth = stroke.width,
+                        cap = stroke.cap
+                    )
+
+                    drawLine(
+                        start = Offset(
+                            x = 0f,
+                            y = 0f
+                        ),
+                        end = Offset(
+                            x = width1,
+                            y = height1
+                        )
+                    )
+
+                    drawLine(
+                        start = Offset(
+                            x = width2,
+                            y = size.height - height2
+                        ),
+                        end = Offset(
+                            x = 0f,
+                            y = size.height
+                        )
+                    )
+                }
+            }
+        }
+    }
 }
 
 private fun Modifier.onBlockClick(
@@ -159,7 +257,7 @@ fun Hash(
     columns: Int,
     config: HashTableConfig.Hash,
     modifier: Modifier = Modifier
-) = DrawWithCache(modifier) {
+) = CanvasWithCache(modifier) {
 
     val rowSize = size.height / rows
     val columnSize = size.width / columns
@@ -199,7 +297,7 @@ fun Hash(
 }
 
 @Composable
-fun DrawWithCache(
+fun CanvasWithCache(
     modifier: Modifier = Modifier,
     onBuildDrawCache: CacheDrawScope.() -> DrawResult
 ) = Spacer(modifier.drawWithCache(onBuildDrawCache))
