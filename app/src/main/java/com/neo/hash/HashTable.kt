@@ -76,14 +76,14 @@ data class HashTableConfig(
 @Composable
 fun HashTable(
     hash: HashState,
-    modifier: Modifier = Modifier,
     onClick: (HashState.Block) -> Unit,
+    modifier: Modifier = Modifier,
     config: HashTableConfig = HashTableConfig.getDefault()
 ) = Box(modifier) {
     Blocks(
         hash = hash,
-        config = config.symbol,
         onClick = onClick,
+        config = config.symbol,
         modifier = Modifier.fillMaxSize()
     )
     Hash(
@@ -97,8 +97,8 @@ fun HashTable(
 @Composable
 fun Blocks(
     hash: HashState,
-    config: HashTableConfig.Symbol,
     onClick: (HashState.Block) -> Unit,
+    config: HashTableConfig.Symbol,
     modifier: Modifier = Modifier
 ) = BoxWithConstraints(modifier) {
 
