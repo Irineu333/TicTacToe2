@@ -6,6 +6,11 @@ data class HashState(
     val blocks: List<List<Block>> = emptyBlocks(rows, columns)
 ) {
 
+    init {
+        check(blocks.size == rows)
+        check(blocks.all { it.size == columns })
+    }
+
     operator fun get(row: Int, column: Int): Block {
         return blocks[row][column]
     }
@@ -28,7 +33,6 @@ data class HashState(
         val column: Int,
         val player: Player? = null
     ) {
-
         enum class Player {
             X,
             O
@@ -50,7 +54,10 @@ data class HashState(
     }
 }
 
-private fun <E> List<E>.update(index: Int, update: (E) -> E): List<E> {
+private fun <E> List<E>.update(
+    index: Int,
+    update: (E) -> E
+): List<E> {
     return List(size) {
         val element = get(it)
 

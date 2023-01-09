@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
@@ -95,7 +96,7 @@ fun HashTable(
 
 @Composable
 fun Blocks(
-    hash : HashState,
+    hash: HashState,
     config: HashTableConfig.Symbol,
     onClick: (HashState.Block) -> Unit,
     modifier: Modifier = Modifier
@@ -133,12 +134,17 @@ fun Block(
     onClick: (HashState.Block) -> Unit,
     config: HashTableConfig.Symbol,
     modifier: Modifier = Modifier
-) = Box(modifier.onBlockClick(block, onClick)) {
+) = Box(
+    modifier = modifier.onBlockClick(block, onClick),
+    contentAlignment = Alignment.Center
+) {
     if (block.player != null) {
         Player(
             player = block.player,
             config = config,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(
+                0.5f
+            )
         )
     }
 }
@@ -149,22 +155,28 @@ fun Player(
     config: HashTableConfig.Symbol,
     modifier: Modifier = Modifier
 ) {
-    val animation = remember { Animatable(if (config.animate) 0f else 2f) }
+    val animation = rememberSaveable(player, saver = AnimatableSaver()) {
+        Animatable(if (config.animate) 0f else 2f)
+    }
 
-    LaunchedEffect(player, config) {
+    LaunchedEffect(player) {
         animation.animateTo(
             targetValue = 2f
         )
     }
 
     CanvasWithCache(modifier) {
-        onDrawBehind {
-            val stroke = Stroke(
-                width = config.width.toPx(),
-                cap = StrokeCap.Round
-            )
 
-            val size = Size(size.height, size.width)
+        val sweepAngle = 360f * animation.value / 2f
+
+        val stroke = Stroke(
+            width = config.width.toPx(),
+            cap = StrokeCap.Round
+        )
+
+        val size = Size(size.height, size.width)
+
+        onDrawBehind {
 
             when (player) {
                 HashState.Block.Player.O -> {
@@ -172,7 +184,7 @@ fun Player(
                     drawArc(
                         color = config.color,
                         startAngle = 0f,
-                        sweepAngle =  360f * animation.value / 2f,
+                        sweepAngle = sweepAngle,
                         size = size,
                         useCenter = false,
                         style = stroke
