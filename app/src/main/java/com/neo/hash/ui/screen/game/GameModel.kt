@@ -1,4 +1,4 @@
-package com.neo.hash
+package com.neo.hash.ui.screen.game
 
 import androidx.lifecycle.ViewModel
 import com.neo.hash.model.HashState
@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class MainViewModel : ViewModel() {
+class GameModel : ViewModel() {
     private val _hashState = MutableStateFlow(
         HashState(
             3, 3,
