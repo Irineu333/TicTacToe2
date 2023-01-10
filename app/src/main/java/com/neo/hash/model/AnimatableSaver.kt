@@ -1,4 +1,4 @@
-package com.neo.hash
+package com.neo.hash.model
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D

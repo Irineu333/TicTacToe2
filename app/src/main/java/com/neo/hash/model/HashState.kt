@@ -1,4 +1,4 @@
-package com.neo.hash
+package com.neo.hash.model
 
 data class HashState(
     val rows: Int,

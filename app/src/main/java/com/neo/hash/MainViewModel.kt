@@ -1,6 +1,7 @@
 package com.neo.hash
 
 import androidx.lifecycle.ViewModel
+import com.neo.hash.model.HashState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

@@ -1,76 +1,19 @@
-package com.neo.hash
+package com.neo.hash.component.hash
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.CacheDrawScope
-import androidx.compose.ui.draw.DrawResult
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-
-data class HashTableConfig(
-    val hash: Hash,
-    val symbol: Symbol,
-    val scratch: Scratch
-) {
-
-    sealed interface Line {
-        val color: Color
-        val width: Dp
-    }
-
-    data class Hash(
-        override val color: Color,
-        override val width: Dp
-    ) : Line
-
-    data class Symbol(
-        override val color: Color,
-        override val width: Dp,
-        val animate: Boolean
-    ) : Line
-
-    data class Scratch(
-        override val color: Color,
-        override val width: Dp,
-        val animate: Boolean
-    ) : Line
-
-    companion object {
-        @Composable
-        fun getDefault(
-            hash: Hash = Hash(
-                color = colors.onBackground,
-                width = 2.dp
-            ),
-            symbol: Symbol = Symbol(
-                color = colors.primary,
-                width = 2.dp,
-                animate = true
-            ),
-            scratch: Scratch = Scratch(
-                color = symbol.color.copy(alpha = 0.5f),
-                width = 8.dp,
-                animate = true
-            )
-        ) = HashTableConfig(
-            hash = hash,
-            symbol = symbol,
-            scratch = scratch
-        )
-    }
-}
+import com.neo.hash.component.CanvasWithCache
+import com.neo.hash.model.AnimatableSaver
+import com.neo.hash.model.HashState
 
 @Composable
 fun HashTable(
@@ -106,71 +49,7 @@ fun HashTable(
 }
 
 @Composable
-fun Winner(
-    rows: Int,
-    columns: Int,
-    winner: HashState.Winner,
-    config: HashTableConfig.Scratch,
-    modifier: Modifier = Modifier
-) {
-    val animation = rememberSaveable(winner, saver = AnimatableSaver()) {
-        Animatable(if (config.animate) 0f else 1f)
-    }
-
-    LaunchedEffect(winner) {
-        animation.animateTo(
-            targetValue = 1f
-        )
-    }
-
-    CanvasWithCache(modifier) {
-
-        val rowSize = size.height / rows
-        val columnSize = size.width / columns
-
-        val lineWidth = config.width.toPx()
-
-        val startBlock = winner.blocks.first()
-        val endBlock = winner.blocks.last()
-
-        val rowRadius = rowSize / 2
-        val columnRadius = columnSize / 2
-
-        val start = Offset(
-            x = startBlock.row * rowSize - rowRadius,
-            y = startBlock.column * columnSize - columnRadius
-        )
-
-        val end = Offset(
-            x = endBlock.row * rowSize - rowRadius,
-            y = endBlock.column * columnSize - columnRadius
-        )
-
-        val length = end - start
-
-        onDrawBehind {
-
-            fun drawRoundedLine(
-                start: Offset,
-                end: Offset
-            ) = drawLine(
-                color = config.color,
-                start = start,
-                end = end,
-                strokeWidth = lineWidth,
-                cap = StrokeCap.Round
-            )
-
-            drawRoundedLine(
-                start = start,
-                end = start + length * animation.value
-            )
-        }
-    }
-}
-
-@Composable
-fun Blocks(
+private fun Blocks(
     hash: HashState,
     onClick: (HashState.Block) -> Unit,
     config: HashTableConfig.Symbol,
@@ -204,7 +83,7 @@ fun Blocks(
 }
 
 @Composable
-fun Block(
+private fun Block(
     block: HashState.Block,
     onClick: (HashState.Block) -> Unit,
     config: HashTableConfig.Symbol,
@@ -225,7 +104,7 @@ fun Block(
 }
 
 @Composable
-fun Player(
+private fun Player(
     player: HashState.Block.Player,
     config: HashTableConfig.Symbol,
     modifier: Modifier = Modifier
@@ -313,21 +192,8 @@ fun Player(
     }
 }
 
-private fun Modifier.onBlockClick(
-    block: HashState.Block,
-    onClick: (HashState.Block) -> Unit
-): Modifier {
-    return if (block.player == null) {
-        clickable {
-            onClick(block)
-        }
-    } else {
-        this
-    }
-}
-
 @Composable
-fun Hash(
+private fun Hash(
     rows: Int,
     columns: Int,
     config: HashTableConfig.Hash,
@@ -372,7 +238,78 @@ fun Hash(
 }
 
 @Composable
-fun CanvasWithCache(
-    modifier: Modifier = Modifier,
-    onBuildDrawCache: CacheDrawScope.() -> DrawResult
-) = Spacer(modifier.drawWithCache(onBuildDrawCache))
+private fun Winner(
+    rows: Int,
+    columns: Int,
+    winner: HashState.Winner,
+    config: HashTableConfig.Scratch,
+    modifier: Modifier = Modifier
+) {
+    val animation = rememberSaveable(winner, saver = AnimatableSaver()) {
+        Animatable(if (config.animate) 0f else 1f)
+    }
+
+    LaunchedEffect(winner) {
+        animation.animateTo(
+            targetValue = 1f
+        )
+    }
+
+    CanvasWithCache(modifier) {
+
+        val rowSize = size.height / rows
+        val columnSize = size.width / columns
+
+        val lineWidth = config.width.toPx()
+
+        val startBlock = winner.blocks.first()
+        val endBlock = winner.blocks.last()
+
+        val rowRadius = rowSize / 2
+        val columnRadius = columnSize / 2
+
+        val start = Offset(
+            x = startBlock.row * rowSize - rowRadius,
+            y = startBlock.column * columnSize - columnRadius
+        )
+
+        val end = Offset(
+            x = endBlock.row * rowSize - rowRadius,
+            y = endBlock.column * columnSize - columnRadius
+        )
+
+        val length = end - start
+
+        onDrawBehind {
+
+            fun drawRoundedLine(
+                start: Offset,
+                end: Offset
+            ) = drawLine(
+                color = config.color,
+                start = start,
+                end = end,
+                strokeWidth = lineWidth,
+                cap = StrokeCap.Round
+            )
+
+            drawRoundedLine(
+                start = start,
+                end = start + length * animation.value
+            )
+        }
+    }
+}
+
+private fun Modifier.onBlockClick(
+    block: HashState.Block,
+    onClick: (HashState.Block) -> Unit
+): Modifier {
+    return if (block.player == null) {
+        clickable {
+            onClick(block)
+        }
+    } else {
+        this
+    }
+}
