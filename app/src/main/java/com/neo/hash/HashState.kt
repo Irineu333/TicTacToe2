@@ -3,6 +3,7 @@ package com.neo.hash
 data class HashState(
     val rows: Int,
     val columns: Int,
+    val winner : Winner? = null,
     val blocks: List<List<Block>> = emptyBlocks(rows, columns)
 ) {
 
@@ -19,8 +20,8 @@ data class HashState(
         block: Block,
         newPlayer: Block.Player?
     ) = copy(
-        blocks = blocks.update(block.row) { columns ->
-            columns.update(block.column) {
+        blocks = blocks.updateAt(block.row) { columns ->
+            columns.updateAt(block.column) {
                 it.copy(
                     player = newPlayer
                 )
@@ -39,6 +40,11 @@ data class HashState(
         }
     }
 
+    data class Winner(
+        val blocks : List<Block>,
+        val player : Block.Player
+    )
+
     companion object {
         private fun emptyBlocks(
             rows: Int,
@@ -54,7 +60,7 @@ data class HashState(
     }
 }
 
-private fun <E> List<E>.update(
+private fun <E> List<E>.updateAt(
     index: Int,
     update: (E) -> E
 ): List<E> {

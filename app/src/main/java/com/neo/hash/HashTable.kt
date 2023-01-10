@@ -13,7 +13,6 @@ import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -62,7 +61,7 @@ data class HashTableConfig(
             ),
             scratch: Scratch = Scratch(
                 color = symbol.color.copy(alpha = 0.5f),
-                width = 4.dp,
+                width = 8.dp,
                 animate = true
             )
         ) = HashTableConfig(
@@ -80,18 +79,94 @@ fun HashTable(
     modifier: Modifier = Modifier,
     config: HashTableConfig = HashTableConfig.getDefault()
 ) = Box(modifier) {
+
     Blocks(
         hash = hash,
         onClick = onClick,
         config = config.symbol,
         modifier = Modifier.fillMaxSize()
     )
+
     Hash(
         rows = hash.rows,
         columns = hash.columns,
         config = config.hash,
         modifier = Modifier.fillMaxSize()
     )
+
+    if (hash.winner != null) {
+        Winner(
+            rows = hash.rows,
+            columns = hash.columns,
+            winner = hash.winner,
+            config = config.scratch,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun Winner(
+    rows: Int,
+    columns: Int,
+    winner: HashState.Winner,
+    config: HashTableConfig.Scratch,
+    modifier: Modifier = Modifier
+) {
+    val animation = rememberSaveable(winner, saver = AnimatableSaver()) {
+        Animatable(if (config.animate) 0f else 1f)
+    }
+
+    LaunchedEffect(winner) {
+        animation.animateTo(
+            targetValue = 1f
+        )
+    }
+
+    CanvasWithCache(modifier) {
+
+        val rowSize = size.height / rows
+        val columnSize = size.width / columns
+
+        val lineWidth = config.width.toPx()
+
+        val startBlock = winner.blocks.first()
+        val endBlock = winner.blocks.last()
+
+        val rowRadius = rowSize / 2
+        val columnRadius = columnSize / 2
+
+        val start = Offset(
+            x = startBlock.row * rowSize - rowRadius,
+            y = startBlock.column * columnSize - columnRadius
+        )
+
+        val end = Offset(
+            x = endBlock.row * rowSize - rowRadius,
+            y = endBlock.column * columnSize - columnRadius
+        )
+
+        val length = end - start
+
+        onDrawBehind {
+
+            fun drawRoundedLine(
+                start: Offset,
+                end: Offset
+            ) = drawLine(
+                color = config.color,
+                start = start,
+                end = end,
+                strokeWidth = lineWidth,
+                cap = StrokeCap.Round
+            )
+
+            drawRoundedLine(
+                start = start,
+                end = start + length * animation.value
+            )
+        }
+    }
 }
 
 @Composable
@@ -167,14 +242,10 @@ fun Player(
 
     CanvasWithCache(modifier) {
 
-        val sweepAngle = 360f * animation.value / 2f
-
         val stroke = Stroke(
             width = config.width.toPx(),
             cap = StrokeCap.Round
         )
-
-        val size = Size(size.height, size.width)
 
         onDrawBehind {
 
@@ -184,33 +255,13 @@ fun Player(
                     drawArc(
                         color = config.color,
                         startAngle = 0f,
-                        sweepAngle = sweepAngle,
+                        sweepAngle = 360f * animation.value / 2,
                         size = size,
                         useCenter = false,
                         style = stroke
                     )
                 }
                 HashState.Block.Player.X -> {
-
-                    val width1 = when (animation.value) {
-                        in 0f..1f -> size.width * animation.value
-                        else -> size.width
-                    }
-
-                    val height1 = when (animation.value) {
-                        in 0f..1f -> size.height * animation.value
-                        else -> size.height
-                    }
-
-                    val width2 = when (animation.value) {
-                        in 1f..2f -> size.width * animation.value.dec()
-                        else -> 0f
-                    }
-
-                    val height2 = when (animation.value) {
-                        in 1f..2f -> size.height * animation.value.dec()
-                        else -> 0f
-                    }
 
                     fun drawLine(
                         start: Offset,
@@ -229,15 +280,27 @@ fun Player(
                             y = 0f
                         ),
                         end = Offset(
-                            x = width1,
-                            y = height1
+                            x = when (animation.value) {
+                                in 0f..1f -> size.width * animation.value
+                                else -> size.width
+                            },
+                            y = when (animation.value) {
+                                in 0f..1f -> size.height * animation.value
+                                else -> size.height
+                            }
                         )
                     )
 
                     drawLine(
                         start = Offset(
-                            x = width2,
-                            y = size.height - height2
+                            x = when (animation.value) {
+                                in 1f..2f -> size.width * animation.value.dec()
+                                else -> 0f
+                            },
+                            y = size.height - when (animation.value) {
+                                in 1f..2f -> size.height * animation.value.dec()
+                                else -> 0f
+                            }
                         ),
                         end = Offset(
                             x = 0f,
