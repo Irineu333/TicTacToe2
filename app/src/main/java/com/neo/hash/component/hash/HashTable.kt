@@ -18,8 +18,8 @@ import com.neo.hash.model.HashState
 @Composable
 fun HashTable(
     hash: HashState,
-    onClick: (HashState.Block) -> Unit,
     modifier: Modifier = Modifier,
+    onClick: (HashState.Block) -> Unit = {},
     config: HashTableConfig = HashTableConfig.getDefault()
 ) = Box(modifier) {
 
@@ -170,22 +170,18 @@ private fun Player(
                         )
                     )
 
-                    drawLine(
-                        start = Offset(
-                            x = when (animation.value) {
-                                in 1f..2f -> size.width * animation.value.dec()
-                                else -> 0f
-                            },
-                            y = size.height - when (animation.value) {
-                                in 1f..2f -> size.height * animation.value.dec()
-                                else -> 0f
-                            }
-                        ),
-                        end = Offset(
-                            x = 0f,
-                            y = size.height
+                    if (animation.value > 1f) {
+                        drawLine(
+                            start = Offset(
+                                x = size.width * animation.value.dec(),
+                                y = size.height - size.height * animation.value.dec()
+                            ),
+                            end = Offset(
+                                x = 0f,
+                                y = size.height
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

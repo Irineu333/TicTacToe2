@@ -3,7 +3,7 @@ package com.neo.hash.model
 data class HashState(
     val rows: Int,
     val columns: Int,
-    val winner : Winner? = null,
+    val winner: Winner? = null,
     val blocks: List<List<Block>> = emptyBlocks(rows, columns)
 ) {
 
@@ -19,9 +19,19 @@ data class HashState(
     fun changePlayer(
         block: Block,
         newPlayer: Block.Player?
+    ) = changePlayer(
+        block.row,
+        block.column,
+        newPlayer
+    )
+
+    fun changePlayer(
+        row: Int,
+        column: Int,
+        newPlayer: Block.Player?
     ) = copy(
-        blocks = blocks.updateAt(block.row) { columns ->
-            columns.updateAt(block.column) {
+        blocks = blocks.updateAt(row) { columns ->
+            columns.updateAt(column) {
                 it.copy(
                     player = newPlayer
                 )
@@ -41,8 +51,8 @@ data class HashState(
     }
 
     data class Winner(
-        val blocks : List<Block>,
-        val player : Block.Player
+        val blocks: List<Block>,
+        val player: Block.Player
     )
 
     companion object {
