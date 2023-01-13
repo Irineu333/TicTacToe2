@@ -4,9 +4,12 @@ package com.neo.hash.ui.screen.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,48 +35,81 @@ private val HashList = listOf(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-) = BoxWithConstraints(
-    modifier = modifier,
-    contentAlignment = Alignment.Center
-) {
-    HorizontalPager(
-        count = HashList.size,
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = maxWidth * 0.2f),
-    ) { pageIndex ->
-        HashTable(
-            hash = HashList[pageIndex],
-            enabledOnClick = false,
-            modifier = Modifier
-                .graphicsLayer {
+) = Column(modifier, Arrangement.Center) {
+    BoxWithConstraints(contentAlignment = Alignment.Center) {
+        HorizontalPager(
+            count = HashList.size,
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = maxWidth * 0.2f),
+        ) { pageIndex ->
+            HashTable(
+                hash = HashList[pageIndex],
+                enabledOnClick = false,
+                modifier = Modifier
+                    .graphicsLayer {
 
-                    val pageOffset = calculateCurrentOffsetForPage(pageIndex).absoluteValue
+                        val pageOffset = calculateCurrentOffsetForPage(pageIndex).absoluteValue
 
-                    interpolate(
-                        start = 0.8f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                    ).also { scale ->
-                        scaleX = scale
-                        scaleY = scale
+                        interpolate(
+                            start = 0.8f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        ).also { scale ->
+                            scaleX = scale
+                            scaleY = scale
+                        }
+
+                        alpha = interpolate(
+                            start = 0.5f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
                     }
-
-                    alpha = interpolate(
-                        start = 0.5f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    .border(
+                        border = BorderStroke(
+                            width = 2.dp,
+                            color = colors.primary
+                        ),
+                        shape = RoundedCornerShape(8.dp)
                     )
-                }.border(
-                    border = BorderStroke(
-                        width = 2.dp,
-                        color = colors.primary
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(16.dp)
-                .fillMaxWidth()
-                .aspectRatio(1f)
-        )
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+            )
+        }
+    }
+
+    Spacer(Modifier.height(16.dp))
+
+    AdaptiveBox(Modifier.fillMaxWidth()) {
+
+        Button(onClick = { }) {
+            Text(text = "button1")
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Button(onClick = { }) {
+            Text(text = "button2")
+        }
+
+    }
+}
+
+@Composable
+fun AdaptiveBox(
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.Center,
+    content: @Composable BoxWithConstraintsScope.(Orientation) -> Unit
+) = BoxWithConstraints(modifier, contentAlignment) {
+    if (maxHeight > maxWidth) {
+        Column {
+            this@BoxWithConstraints.content(Orientation.Vertical)
+        }
+    } else {
+        Row {
+            this@BoxWithConstraints.content(Orientation.Horizontal)
+        }
     }
 }
 
