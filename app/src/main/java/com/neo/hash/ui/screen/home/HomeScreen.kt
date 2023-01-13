@@ -3,6 +3,7 @@
 package com.neo.hash.ui.screen.home
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -13,11 +14,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.neo.hash.component.hash.HashTable
 import com.neo.hash.model.HashState
@@ -35,66 +38,171 @@ private val HashList = listOf(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-) = Column(modifier, Arrangement.Center) {
-    BoxWithConstraints(contentAlignment = Alignment.Center) {
-        HorizontalPager(
-            count = HashList.size,
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = maxWidth * 0.2f),
-        ) { pageIndex ->
-            HashTable(
-                hash = HashList[pageIndex],
-                enabledOnClick = false,
+) = BoxWithConstraints {
+
+    if (maxHeight > maxWidth) {
+        Column(modifier, Arrangement.Center) {
+
+            BoxWithConstraints(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .graphicsLayer {
+                    .padding(vertical = 16.dp)
+                    .weight(1f, false)
+            ) {
 
-                        val pageOffset = calculateCurrentOffsetForPage(pageIndex).absoluteValue
+                val size = minOf(maxWidth, maxHeight)
 
-                        interpolate(
-                            start = 0.8f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                        ).also { scale ->
-                            scaleX = scale
-                            scaleY = scale
-                        }
+                val padding = (maxWidth - size) / 2
 
-                        alpha = interpolate(
-                            start = 0.5f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                HorizontalPager(
+                    count = HashList.size,
+                    contentPadding = PaddingValues(
+                        horizontal = padding.coerceAtLeast(
+                            minimumValue = maxWidth * 0.2f
                         )
-                    }
-                    .border(
-                        border = BorderStroke(
-                            width = 2.dp,
-                            color = colors.primary
-                        ),
-                        shape = RoundedCornerShape(8.dp)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) { pageIndex ->
+                    HashTable(
+                        hash = HashList[pageIndex],
+                        enabledOnClick = false,
+                        modifier = Modifier
+                            .graphicsLayer {
+
+                                val pageOffset =
+                                    calculateCurrentOffsetForPage(pageIndex).absoluteValue
+
+                                interpolate(
+                                    start = 0.8f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                ).also { scale ->
+                                    scaleX = scale
+                                    scaleY = scale
+                                }
+
+                                alpha = interpolate(
+                                    start = 0.5f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                )
+                            }
+                            .border(
+                                border = BorderStroke(
+                                    width = 2.dp,
+                                    color = colors.primary
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(16.dp)
+                            .squareSize()
+
                     )
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Button(onClick = { }) {
+                    Text(text = "button1")
+                }
+
+                Button(onClick = { }) {
+                    Text(text = "button2")
+                }
+            }
         }
-    }
+    } else {
+        Row(modifier, Arrangement.SpaceEvenly) {
 
-    Spacer(Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
 
-    AdaptiveBox(Modifier.fillMaxWidth()) {
+                Button(onClick = { }) {
+                    Text(text = "button1")
+                }
 
-        Button(onClick = { }) {
-            Text(text = "button1")
+                Button(onClick = { }) {
+                    Text(text = "button2")
+                }
+
+            }
+
+            BoxWithConstraints(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(1f, false)
+            ) {
+
+                val size = minOf(maxWidth, maxHeight)
+
+                val padding = (maxHeight - size) / 2
+
+                VerticalPager(
+                    count = HashList.size,
+                    contentPadding = PaddingValues(
+                        vertical = padding.coerceAtLeast(
+                            minimumValue = maxHeight * 0.2f
+                        )
+                    ),
+                    modifier = Modifier.fillMaxHeight()
+                ) { pageIndex ->
+                    HashTable(
+                        hash = HashList[pageIndex],
+                        enabledOnClick = false,
+                        modifier = Modifier
+                            .graphicsLayer {
+
+                                val pageOffset =
+                                    calculateCurrentOffsetForPage(pageIndex).absoluteValue
+
+                                interpolate(
+                                    start = 0.8f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                ).also { scale ->
+                                    scaleX = scale
+                                    scaleY = scale
+                                }
+
+                                alpha = interpolate(
+                                    start = 0.5f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                )
+                            }
+                            .border(
+                                border = BorderStroke(
+                                    width = 2.dp,
+                                    color = colors.primary
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(16.dp)
+                            .squareSize()
+
+                    )
+                }
+            }
         }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Button(onClick = { }) {
-            Text(text = "button2")
-        }
-
     }
 }
+
+context(BoxWithConstraintsScope)
+        private fun Modifier.squareSize() = aspectRatio(
+    ratio = 1f,
+    matchHeightConstraintsFirst = maxHeight > maxWidth
+)
 
 @Composable
 fun AdaptiveBox(

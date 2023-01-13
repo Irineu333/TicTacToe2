@@ -30,14 +30,14 @@ fun HashTable(
             onClick = onClick,
             enabledOnClick = enabledOnClick,
             config = config.symbol,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.matchParentSize()
         )
 
         Hash(
             rows = hash.rows,
             columns = hash.columns,
             config = config.hash,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.matchParentSize()
         )
 
         if (hash.winner != null) {
@@ -46,7 +46,7 @@ fun HashTable(
                 columns = hash.columns,
                 winner = hash.winner,
                 config = config.scratch,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.matchParentSize()
             )
         }
     }
