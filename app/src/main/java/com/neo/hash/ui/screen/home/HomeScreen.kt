@@ -37,25 +37,8 @@ fun HomeScreen(
 
     val pageState = rememberPagerState()
 
-    if (maxHeight > maxWidth) {
-        Horizontal(pageState, Modifier.fillMaxSize())
-    } else {
-        Vertical(pageState, Modifier.fillMaxSize())
-    }
-}
-
-@Composable
-private fun Vertical(
-    pageState: PagerState,
-    modifier: Modifier = Modifier
-) = Row(modifier, Arrangement.SpaceEvenly) {
-
-    Column(
-        modifier = Modifier
-            .padding(start = 16.dp)
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.Center
-    ) {
+    @Composable
+    fun options() = Column(Modifier.padding(16.dp)) {
 
         Button(onClick = { }) {
             Text(text = "button1")
@@ -67,10 +50,34 @@ private fun Vertical(
 
     }
 
+    if (maxHeight > maxWidth) {
+        Vertical(pageState, Modifier.fillMaxSize()) {
+            options()
+        }
+    } else {
+        Horizontal(pageState, Modifier.fillMaxSize()) {
+            options()
+        }
+    }
+}
+
+@Composable
+private fun Horizontal(
+    pageState: PagerState,
+    modifier: Modifier = Modifier,
+    options: @Composable () -> Unit
+) = Row(
+    modifier,
+    Arrangement.SpaceEvenly,
+    Alignment.CenterVertically
+) {
+
+    options()
+
     BoxWithConstraints(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(horizontal = 16.dp)
+            .padding(end = 16.dp)
             .weight(1f, false)
     ) {
 
@@ -128,17 +135,19 @@ private fun Vertical(
 }
 
 @Composable
-private fun Horizontal(
+private fun Vertical(
     pageState: PagerState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    options: @Composable () -> Unit
 ) = Column(
     modifier,
-    Arrangement.Center
+    Arrangement.Center,
+    Alignment.CenterHorizontally
 ) {
     BoxWithConstraints(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(vertical = 16.dp)
+            .padding(top = 16.dp)
             .weight(1f, false)
     ) {
 
@@ -194,21 +203,7 @@ private fun Horizontal(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .padding(bottom = 16.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Button(onClick = { }) {
-            Text(text = "button1")
-        }
-
-        Button(onClick = { }) {
-            Text(text = "button2")
-        }
-    }
+    options()
 }
 
 @Preview
