@@ -1,4 +1,4 @@
-package com.neo.hash.component
+package com.neo.hash.component.box
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.BoxWithConstraints

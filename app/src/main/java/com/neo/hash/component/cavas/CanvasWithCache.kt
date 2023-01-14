@@ -1,4 +1,4 @@
-package com.neo.hash.component
+package com.neo.hash.component.cavas
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable

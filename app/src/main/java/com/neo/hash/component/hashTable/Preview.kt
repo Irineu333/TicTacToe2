@@ -1,9 +1,8 @@
-package com.neo.hash.component.hash
+package com.neo.hash.component.hashTable
 
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.neo.hash.annotation.ThemesPreview
 import com.neo.hash.model.HashState
 import com.neo.hash.ui.theme.HashBackground

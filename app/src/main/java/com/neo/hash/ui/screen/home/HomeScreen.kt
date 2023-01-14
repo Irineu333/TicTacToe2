@@ -12,19 +12,16 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.*
 import com.google.accompanist.pager.*
 import com.neo.hash.annotation.DevicesPreview
 import com.neo.hash.annotation.ThemesPreview
-import com.neo.hash.component.hash.HashTable
+import com.neo.hash.component.hashTable.HashTable
 import com.neo.hash.model.HashState
 import com.neo.hash.ui.theme.HashBackground
 import com.neo.hash.ui.theme.HashTheme
+import com.neo.hash.util.extension.showAround
 import com.neo.hash.util.extension.squareSize
-import com.neo.hash.util.function.interpolate
-import com.neo.hash.util.function.inverseOf
-import kotlin.math.absoluteValue
 
 private val HashList = listOf(
     HashState(3, 3),
@@ -43,33 +40,10 @@ fun HomeScreen(
             hash = HashList[pageIndex],
             enabledOnClick = false,
             modifier = Modifier
-                .graphicsLayer {
-
-                    val pageOffset =
-                        calculateCurrentOffsetForPage(pageIndex).absoluteValue
-
-                    interpolate(
-                        start = 0.8f,
-                        stop = 1f,
-                        fraction = pageOffset
-                            .coerceIn(0f, 1f)
-                            .inverseOf(1f)
-                    ).also { scale ->
-                        scaleX = scale
-                        scaleY = scale
-                    }
-
-                    alpha = interpolate(
-                        start = 0.5f,
-                        stop = 1f,
-                        fraction = pageOffset
-                            .coerceIn(0f, 1f)
-                            .inverseOf(1f)
-                    )
-                }
+                .showAround(pageIndex)
                 .border(
                     BorderStroke(2.dp, colors.primary),
-                    RoundedCornerShape(8.dp)
+                    RoundedCornerShape(5)
                 )
                 .padding(16.dp)
                 .squareSize()
@@ -77,10 +51,7 @@ fun HomeScreen(
         )
     },
     options = {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
             Button(onClick = { }) {
                 Text(text = "vs player")
@@ -133,7 +104,7 @@ private fun HomeLandscapeContent(
     options: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) = Row(
-    modifier,
+    modifier.padding(horizontal = 16.dp),
     Arrangement.SpaceEvenly,
     Alignment.CenterVertically
 ) {
@@ -141,9 +112,7 @@ private fun HomeLandscapeContent(
     options()
 
     BoxWithConstraints(
-        contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(end = 16.dp)
             .weight(1f, false)
     ) {
 
@@ -173,16 +142,11 @@ private fun HomePortraitContent(
     options: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
-    modifier,
-    Arrangement.Center,
-    Alignment.CenterHorizontally
+    modifier.padding(vertical = 16.dp),
+    Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+    Alignment.CenterHorizontally,
 ) {
-    BoxWithConstraints(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .padding(top = 16.dp)
-            .weight(1f, false)
-    ) {
+    BoxWithConstraints(Modifier.weight(1f, false)) {
 
         val tableSize = minOf(maxWidth, maxHeight)
 

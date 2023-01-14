@@ -1,4 +1,4 @@
-package com.neo.hash.component.hash
+package com.neo.hash.component.hashTable
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import com.neo.hash.component.CanvasWithCache
+import com.neo.hash.component.cavas.CanvasWithCache
 import com.neo.hash.model.AnimatableSaver
 import com.neo.hash.model.HashState
 

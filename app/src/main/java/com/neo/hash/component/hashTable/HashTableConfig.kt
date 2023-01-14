@@ -1,4 +1,4 @@
-package com.neo.hash.component.hash
+package com.neo.hash.component.hashTable
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
