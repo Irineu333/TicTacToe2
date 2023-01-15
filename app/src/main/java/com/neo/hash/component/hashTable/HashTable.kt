@@ -99,9 +99,9 @@ private fun Block(
     modifier = modifier.onBlockClick(block, enabledOnClick, onClick),
     contentAlignment = Alignment.Center
 ) {
-    if (block.player != null) {
+    if (block.symbol != null) {
         Player(
-            player = block.player,
+            symbol = block.symbol,
             config = config,
             modifier = Modifier.fillMaxSize(
                 0.5f
@@ -112,15 +112,15 @@ private fun Block(
 
 @Composable
 private fun Player(
-    player: HashState.Block.Player,
+    symbol: HashState.Block.Symbol,
     config: HashTableConfig.Symbol,
     modifier: Modifier = Modifier
 ) {
-    val animation = rememberSaveable(player, saver = AnimatableSaver()) {
+    val animation = rememberSaveable(symbol, saver = AnimatableSaver()) {
         Animatable(if (config.animate) 0f else 2f)
     }
 
-    LaunchedEffect(player) {
+    LaunchedEffect(symbol) {
         animation.animateTo(
             targetValue = 2f
         )
@@ -135,8 +135,8 @@ private fun Player(
 
         onDrawBehind {
 
-            when (player) {
-                HashState.Block.Player.O -> {
+            when (symbol) {
+                HashState.Block.Symbol.O -> {
 
                     drawArc(
                         color = config.color,
@@ -147,7 +147,7 @@ private fun Player(
                         style = stroke
                     )
                 }
-                HashState.Block.Player.X -> {
+                HashState.Block.Symbol.X -> {
 
                     fun drawLine(
                         start: Offset,
@@ -309,7 +309,7 @@ private fun Modifier.onBlockClick(
     enabled: Boolean,
     onClick: (HashState.Block) -> Unit
 ): Modifier {
-    return if (block.player == null) {
+    return if (block.symbol == null) {
         clickable(enabled) {
             onClick(block)
         }

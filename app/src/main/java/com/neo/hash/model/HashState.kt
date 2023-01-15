@@ -16,24 +16,24 @@ data class HashState(
         return blocks[row][column]
     }
 
-    fun changePlayer(
+    fun addedPlayer(
         block: Block,
-        newPlayer: Block.Player?
-    ) = changePlayer(
+        newSymbol: Block.Symbol?
+    ) = addedPlayer(
         block.row,
         block.column,
-        newPlayer
+        newSymbol
     )
 
-    fun changePlayer(
+    fun addedPlayer(
         row: Int,
         column: Int,
-        newPlayer: Block.Player?
+        newSymbol: Block.Symbol?
     ) = copy(
         blocks = blocks.updateAt(row) { columns ->
             columns.updateAt(column) {
                 it.copy(
-                    player = newPlayer
+                    symbol = newSymbol
                 )
             }
         }
@@ -42,9 +42,9 @@ data class HashState(
     data class Block(
         val row: Int,
         val column: Int,
-        val player: Player? = null
+        val symbol: Symbol? = null
     ) {
-        enum class Player {
+        enum class Symbol {
             X,
             O
         }
@@ -52,7 +52,7 @@ data class HashState(
 
     data class Winner(
         val blocks: List<Block>,
-        val player: Block.Player
+        val symbol: Block.Symbol
     )
 
     companion object {

@@ -10,18 +10,18 @@ import com.neo.hash.ui.theme.HashTheme
 
 @ThemesPreview
 @Composable
-fun DefaultPreview() {
+private fun DefaultPreview() {
     HashTheme {
         HashBackground {
             var hashState by remember {
                 mutableStateOf(
                     HashState(
-                    rows = 3,
-                    columns = 3
-                ).changePlayer(
+                        rows = 3,
+                        columns = 3
+                    ).addedPlayer(
                         row = 1,
                         column = 1,
-                        newPlayer = HashState.Block.Player.X
+                        newSymbol = HashState.Block.Symbol.X
                     )
                 )
             }
@@ -29,9 +29,9 @@ fun DefaultPreview() {
             HashTable(
                 hash = hashState,
                 onClick = { block ->
-                    hashState = hashState.changePlayer(
+                    hashState = hashState.addedPlayer(
                         block = block,
-                        newPlayer = HashState.Block.Player.O
+                        newSymbol = HashState.Block.Symbol.O
                     )
                 },
                 modifier = Modifier.aspectRatio(1f)

@@ -16,7 +16,7 @@ class GameModel : ViewModel() {
                     HashState.Block(2,2),
                     HashState.Block(3,3),
                 ),
-                HashState.Block.Player.X
+                HashState.Block.Symbol.X
             )
         )
     )
@@ -24,9 +24,9 @@ class GameModel : ViewModel() {
 
     fun test(block: HashState.Block) {
         _hashState.update {
-            it.changePlayer(
+            it.addedPlayer(
                 block = block,
-                newPlayer = HashState.Block.Player.values().random()
+                newSymbol = HashState.Block.Symbol.values().random()
             )
         }
     }
