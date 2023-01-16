@@ -44,9 +44,9 @@ data class HashState(
         val column: Int,
         val symbol: Symbol? = null
     ) {
-        enum class Symbol {
-            X,
-            O
+        enum class Symbol(val code : Int) {
+            O(code = 0),
+            X(code = 1)
         }
     }
 

@@ -24,7 +24,7 @@ import com.neo.hash.annotation.ThemesPreview
 import com.neo.hash.component.hashTable.HashTable
 import com.neo.hash.model.HashState
 import com.neo.hash.ui.screen.start.GameMode
-import com.neo.hash.ui.screen.start.GameStartDialog
+import com.neo.hash.ui.screen.start.StartDialog
 import com.neo.hash.ui.theme.HashBackground
 import com.neo.hash.ui.theme.HashTheme
 import com.neo.hash.util.extension.showAround
@@ -132,7 +132,7 @@ fun HomeScreen(
     )
 
     startDialog?.let {
-        GameStartDialog(
+        StartDialog(
             gameMode = it,
             onGameStart = {
 
