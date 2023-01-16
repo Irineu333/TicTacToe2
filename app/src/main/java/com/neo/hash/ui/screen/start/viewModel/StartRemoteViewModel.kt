@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class StartRemoteViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.InsetName)
+    private val _uiState = MutableStateFlow<UiState>(UiState.InsertHash)
     val uiState = _uiState.asStateFlow()
 
     private val gamesRef by lazy { Firebase.database.getReference("games") }
@@ -47,9 +47,35 @@ class StartRemoteViewModel : ViewModel() {
         }
     }
 
+    fun insertGameHash() {
+        _uiState.value = UiState.InsertHash
+    }
+
+    fun openGame(userName: String, hashGame: String) {
+        val players = gamesRef.child(hashGame).child("players")
+
+        installation.id.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                players.updateChildren(
+                    mapOf(
+                        "1" to mapOf(
+                            "id" to task.result,
+                            "symbol" to HashState.Block.Symbol.X,
+                            "name" to userName
+                        )
+                    )
+                )
+            } else {
+                _uiState.value = UiState.InsetName
+            }
+        }
+
+    }
+
     sealed interface UiState {
         object InsetName : UiState
         object Creating : UiState
+        object InsertHash : UiState
         data class Waiting(
             val gameHash: String
         ) : UiState

@@ -93,10 +93,11 @@ private fun StartRemote(
         modifier = Modifier.fillMaxWidth()
     )
 
-    Spacer(Modifier.height(8.dp))
-
     when (state) {
         StartRemoteViewModel.UiState.InsetName -> {
+
+            Spacer(Modifier.height(8.dp))
+
             Button(
                 onClick = {
                     viewModel.createRemoteGame(userName)
@@ -109,7 +110,7 @@ private fun StartRemote(
             }
 
             Button(
-                onClick = { },
+                onClick = { viewModel.insertGameHash() },
                 enabled = userName.isNotBlank(),
                 contentPadding = PaddingValues(12.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -120,6 +121,9 @@ private fun StartRemote(
         }
 
         StartRemoteViewModel.UiState.Creating -> {
+
+            Spacer(Modifier.height(8.dp))
+
             Card(
                 backgroundColor = colors.onSurface
                     .copy(alpha = 0.3f)
@@ -143,6 +147,8 @@ private fun StartRemote(
         }
 
         is StartRemoteViewModel.UiState.Waiting -> {
+
+            Spacer(Modifier.height(8.dp))
 
             val clipboardManage = LocalClipboardManager.current
             val context = LocalContext.current
@@ -172,6 +178,36 @@ private fun StartRemote(
                 )
 
                 Text(text = "Aguardando adiversário...")
+            }
+        }
+        StartRemoteViewModel.UiState.InsertHash -> {
+
+            var hashGame by remember { mutableStateOf("") }
+
+            OutlinedTextField(
+                value = hashGame,
+                onValueChange = {
+                    hashGame = it.trim()
+                },
+                label = {
+                    Text(text = "Código do jogo")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    viewModel.openGame(
+                        userName = userName,
+                        hashGame = hashGame
+                    )
+                },
+                contentPadding = PaddingValues(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Entrar")
             }
         }
     }
