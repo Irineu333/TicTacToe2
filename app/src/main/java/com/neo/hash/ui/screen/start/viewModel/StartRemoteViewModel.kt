@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class StartRemoteViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.InsertHash)
+    private val _uiState = MutableStateFlow<UiState>(UiState.InsetName)
     val uiState = _uiState.asStateFlow()
 
     private val gamesRef by lazy { Firebase.database.getReference("games") }

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.neo.hash.ui.screen.start
 
 import android.widget.Toast
@@ -7,12 +9,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.MaterialTheme.typography
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.neo.hash.model.GameConfig
 import com.neo.hash.ui.screen.start.viewModel.StartRemoteViewModel
@@ -41,10 +43,11 @@ fun StartDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) = Dialog(
-    onDismissRequest = onDismissRequest
+    onDismissRequest = onDismissRequest,
+    properties = DialogProperties(usePlatformDefaultWidth = false)
 ) {
     Card(
-        modifier = modifier.wrapContentHeight(),
+        modifier = modifier.padding(32.dp),
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(2.dp, colors.primary)
     ) {
