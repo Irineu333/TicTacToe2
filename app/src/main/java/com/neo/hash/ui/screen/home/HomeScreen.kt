@@ -135,7 +135,7 @@ fun HomeScreen(
         StartDialog(
             gameMode = it,
             onGameStart = {
-
+                startDialog = null
             },
             onDismissRequest = {
                 startDialog = null

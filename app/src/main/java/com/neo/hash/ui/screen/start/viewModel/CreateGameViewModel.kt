@@ -1,9 +1,15 @@
 package com.neo.hash.ui.screen.start.viewModel
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.ktx.Firebase
+import com.neo.hash.data.DataPlayer
+import com.neo.hash.data.toModel
 import com.neo.hash.model.GameConfig
 import com.neo.hash.model.HashState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,28 +27,63 @@ class CreateGameViewModel : ViewModel() {
 
         val newGameRef = gamesRef.push()
 
-        installation.id.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                newGameRef.setValue(
-                    mapOf(
-                        "symbol_starts" to HashState.Block.Symbol.O,
-                        "players" to listOf(
-                            mapOf(
-                                "id" to task.result,
-                                "symbol" to HashState.Block.Symbol.O,
-                                "name" to userName
-                            )
+        val symbolStarts = HashState.Block.Symbol.values().random()
+
+        installation.id.addOnSuccessListener { result ->
+            newGameRef.setValue(
+                mapOf(
+                    "symbol_starts" to symbolStarts,
+                    "players" to listOf(
+                        mapOf(
+                            "id" to result,
+                            "symbol" to HashState.Block.Symbol.O,
+                            "name" to userName
                         )
                     )
-                ).addOnSuccessListener {
-                    _uiState.value = UiState.Waiting(newGameRef.key!!)
-                }.addOnFailureListener {
-                    _uiState.value = UiState.Error
-                }
-            } else {
+                )
+            ).addOnSuccessListener {
+                _uiState.value = UiState.Waiting(newGameRef.key!!)
+
+                listenOpponent(
+                    gameKey = newGameRef.key!!,
+                    symbolStarts = symbolStarts
+                )
+            }.addOnFailureListener {
                 _uiState.value = UiState.Error
             }
+        }.addOnFailureListener {
+            _uiState.value = UiState.Error
         }
+    }
+
+    private fun listenOpponent(
+        gameKey: String,
+        symbolStarts: HashState.Block.Symbol
+    ) {
+        gamesRef.child(gameKey)
+            .child("players")
+            .addValueEventListener(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.childrenCount == 2L) {
+
+                            val dataPlayer = snapshot.getValue<List<DataPlayer>>()!!
+
+                            _uiState.value = UiState.Created(
+                                GameConfig.Remote(
+                                    players = dataPlayer.map { it.toModel() },
+                                    symbolStarts = symbolStarts,
+                                    gameKey = gameKey
+                                )
+                            )
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        _uiState.value = UiState.Error
+                    }
+                }
+            )
     }
 
     sealed interface UiState {
@@ -51,7 +92,7 @@ class CreateGameViewModel : ViewModel() {
         object Error : UiState
 
         data class Waiting(
-            val gameKey : String
+            val gameKey: String
         ) : UiState
 
         data class Created(

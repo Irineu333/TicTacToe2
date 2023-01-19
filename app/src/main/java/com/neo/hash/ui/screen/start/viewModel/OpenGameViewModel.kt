@@ -18,7 +18,10 @@ class OpenGameViewModel : ViewModel() {
 
     private val installation by lazy { FirebaseInstallations.getInstance() }
 
-    fun openGame(userName: String, gameKey: String) {
+    fun openGame(
+        userName: String,
+        gameKey: String
+    ) {
         val players = gamesRef.child(gameKey).child("players")
 
         installation.id.addOnCompleteListener { task ->
