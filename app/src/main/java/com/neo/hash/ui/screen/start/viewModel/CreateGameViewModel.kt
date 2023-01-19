@@ -8,7 +8,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.ktx.Firebase
-import com.neo.hash.data.DataPlayer
+import com.neo.hash.data.RemotePlayer
 import com.neo.hash.data.toModel
 import com.neo.hash.model.GameConfig
 import com.neo.hash.model.HashState
@@ -29,15 +29,17 @@ class CreateGameViewModel : ViewModel() {
 
         val symbolStarts = HashState.Block.Symbol.values().random()
 
+        val mySymbol = HashState.Block.Symbol.O
+
         installation.id.addOnSuccessListener { result ->
             newGameRef.setValue(
                 mapOf(
                     "symbol_starts" to symbolStarts,
                     "players" to listOf(
-                        mapOf(
-                            "id" to result,
-                            "symbol" to HashState.Block.Symbol.O,
-                            "name" to userName
+                        RemotePlayer(
+                            id = result,
+                            name = userName,
+                            symbol = mySymbol
                         )
                     )
                 )
@@ -67,11 +69,16 @@ class CreateGameViewModel : ViewModel() {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.childrenCount == 2L) {
 
-                            val dataPlayer = snapshot.getValue<List<DataPlayer>>()!!
+                            val remotePlayer = snapshot.getValue<List<RemotePlayer>>()!!
+
+                            if (remotePlayer[0].symbol != remotePlayer[1].symbol) {
+                                _uiState.value = UiState.Error
+                                return
+                            }
 
                             _uiState.value = UiState.Created(
                                 GameConfig.Remote(
-                                    players = dataPlayer.map { it.toModel() },
+                                    players = remotePlayer.map { it.toModel() },
                                     symbolStarts = symbolStarts,
                                     gameKey = gameKey
                                 )
