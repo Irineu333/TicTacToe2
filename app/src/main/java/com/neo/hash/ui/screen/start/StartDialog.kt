@@ -120,14 +120,13 @@ private fun StartRemote(
         composable("choose") {
             Choose(
                 enabled = userName.isNotBlank(),
-                modifier = Modifier.padding(top = 8.dp),
-                onPlayGame = {},
                 onCreateGame = {
                     navController.navigate("create")
                 },
                 onOpenGame = {
                     navController.navigate("open")
-                }
+                },
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
 
@@ -313,20 +312,10 @@ private fun CreateGame(
 @Composable
 private fun Choose(
     enabled: Boolean,
-    onPlayGame: () -> Unit,
     onCreateGame: () -> Unit,
     onOpenGame: () -> Unit,
     modifier: Modifier = Modifier,
 ) = Column(modifier) {
-
-    Button(
-        onClick = onPlayGame,
-        contentPadding = PaddingValues(12.dp),
-        enabled = enabled,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(text = "Jogar")
-    }
 
     Button(
         onClick = onCreateGame,
