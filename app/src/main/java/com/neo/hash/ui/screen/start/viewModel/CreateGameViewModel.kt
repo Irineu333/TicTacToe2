@@ -4,22 +4,20 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.ktx.database
 import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.ktx.Firebase
+import com.neo.hash.model.GameConfig
 import com.neo.hash.model.HashState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class StartRemoteViewModel : ViewModel() {
-
-    private val _uiState = MutableStateFlow<UiState>(UiState.InsetName)
+class CreateGameViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow<UiState>(UiState.Creating)
     val uiState = _uiState.asStateFlow()
 
     private val gamesRef by lazy { Firebase.database.getReference("games") }
 
     private val installation by lazy { FirebaseInstallations.getInstance() }
 
-    fun createRemoteGame(userName: String) {
-
-        _uiState.value = UiState.Creating
+    fun createGame(userName: String) {
 
         val newGameRef = gamesRef.push()
 
@@ -39,45 +37,25 @@ class StartRemoteViewModel : ViewModel() {
                 ).addOnSuccessListener {
                     _uiState.value = UiState.Waiting(newGameRef.key!!)
                 }.addOnFailureListener {
-                    _uiState.value = UiState.InsetName
+                    _uiState.value = UiState.Error
                 }
             } else {
-                _uiState.value = UiState.InsetName
+                _uiState.value = UiState.Error
             }
         }
-    }
-
-    fun insertGameHash() {
-        _uiState.value = UiState.InsertHash
-    }
-
-    fun openGame(userName: String, hashGame: String) {
-        val players = gamesRef.child(hashGame).child("players")
-
-        installation.id.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                players.updateChildren(
-                    mapOf(
-                        "1" to mapOf(
-                            "id" to task.result,
-                            "symbol" to HashState.Block.Symbol.X,
-                            "name" to userName
-                        )
-                    )
-                )
-            } else {
-                _uiState.value = UiState.InsetName
-            }
-        }
-
     }
 
     sealed interface UiState {
-        object InsetName : UiState
         object Creating : UiState
-        object InsertHash : UiState
+
+        object Error : UiState
+
         data class Waiting(
-            val gameHash: String
+            val gameKey : String
+        ) : UiState
+
+        data class Created(
+            val gameConfig: GameConfig.Remote
         ) : UiState
     }
 }
