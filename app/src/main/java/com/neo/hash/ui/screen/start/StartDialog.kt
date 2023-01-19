@@ -162,23 +162,32 @@ private fun OpenGame(
     onBackNavigation: () -> Unit,
     viewModel: OpenGameViewModel = viewModel()
 ) = Column(modifier) {
-    when (val state = viewModel.uiState.collectAsState().value) {
-        is OpenGameViewModel.UiState.Opening -> {
-            var gameKey by remember { mutableStateOf("") }
 
-            OutlinedTextField(
-                value = gameKey,
-                onValueChange = {
-                    gameKey = it.trim()
-                },
-                label = {
-                    Text(text = "Código do jogo")
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+    var gameKey by remember { mutableStateOf("") }
 
-            Spacer(Modifier.height(8.dp))
+    val state = viewModel.uiState.collectAsState().value
 
+    OutlinedTextField(
+        value = gameKey,
+        onValueChange = {
+            gameKey = it.trim()
+        },
+        label = {
+            Text(text = "Código do jogo")
+        },
+        enabled = state is OpenGameViewModel.UiState.InputKey,
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(Modifier.height(8.dp))
+
+    when (state) {
+        is OpenGameViewModel.UiState.Opened -> {
+            LaunchedEffect(state) {
+                onGameStart(state.gameConfig)
+            }
+        }
+        OpenGameViewModel.UiState.InputKey -> {
             Button(
                 onClick = {
                     viewModel.openGame(
@@ -186,6 +195,7 @@ private fun OpenGame(
                         gameKey = gameKey
                     )
                 },
+                enabled = gameKey.isNotBlank(),
                 contentPadding = PaddingValues(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -193,15 +203,26 @@ private fun OpenGame(
             }
         }
 
-        is OpenGameViewModel.UiState.Opened -> {
-            LaunchedEffect(state) {
-                onGameStart(state.gameConfig)
-            }
-        }
+        OpenGameViewModel.UiState.Opening -> {
+            Card(
+                backgroundColor = colors.onSurface
+                    .copy(alpha = 0.3f)
+                    .compositeOver(colors.surface),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        color = LocalContentColor.current,
+                        strokeWidth = 1.5.dp
+                    )
 
-        OpenGameViewModel.UiState.Error -> {
-            LaunchedEffect(state) {
-                onBackNavigation()
+                    Text(text = "Abrindo jogo...")
+                }
             }
         }
     }

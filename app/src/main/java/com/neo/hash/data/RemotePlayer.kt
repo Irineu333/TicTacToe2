@@ -23,3 +23,9 @@ fun RemotePlayer.toModel() = GameConfig.Player.Remote(
     name = name,
     symbol = symbol
 )
+
+fun RemotePlayer.toMap() = mapOf(
+    "id" to id,
+    "name" to name,
+    "symbol" to symbol.name
+)
