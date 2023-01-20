@@ -52,6 +52,12 @@ data class HashState(
                 O -> X
                 X -> O
             }
+
+            companion object {
+                fun random(): Symbol {
+                    return values().random()
+                }
+            }
         }
     }
 

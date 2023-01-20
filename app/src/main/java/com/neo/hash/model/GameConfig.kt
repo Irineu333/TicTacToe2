@@ -3,16 +3,13 @@ package com.neo.hash.model
 sealed interface GameConfig {
 
     val players: List<Player>
-    val symbolStarts: HashState.Block.Symbol
 
     data class Local(
         override val players: List<Player>,
-        override val symbolStarts: HashState.Block.Symbol
     ) : GameConfig
 
     data class Remote(
         override val players: List<Player>,
-        override val symbolStarts: HashState.Block.Symbol,
         val gameKey: String
     ) : GameConfig
 

@@ -1,7 +1,10 @@
 package com.neo.hash.ui.screen.start
 
-import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
@@ -19,10 +22,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.neo.hash.component.icon.Symbol
 import com.neo.hash.model.GameConfig
+import com.neo.hash.model.HashState
 import com.neo.hash.ui.screen.start.viewModel.CreateGameViewModel
 import com.neo.hash.ui.screen.start.viewModel.OpenGameViewModel
-import kotlinx.coroutines.flow.collect
 
 @Composable
 fun StartRemote(
@@ -31,10 +35,15 @@ fun StartRemote(
 ) = Column(modifier) {
 
     var userName by rememberSaveable { mutableStateOf("") }
+    var symbol by rememberSaveable { mutableStateOf(HashState.Block.Symbol.random()) }
 
     val navController = rememberNavController()
 
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
+
+    val isChooseScreen = currentDestination?.route == "choose_screen"
+
+    val interactionSource = remember { MutableInteractionSource() }
 
     OutlinedTextField(
         value = userName,
@@ -44,30 +53,55 @@ fun StartRemote(
         label = {
             Text(text = "Nome do jogador")
         },
-        enabled = currentDestination?.route == "choose",
+        trailingIcon = {
+            AnimatedVisibility(
+                visible = currentDestination?.route != "open_screen",
+                enter = fadeIn() + slideInHorizontally(
+                    initialOffsetX = {
+                        it / 2
+                    }
+                ),
+                exit = fadeOut() + slideOutHorizontally(
+                    targetOffsetX = {
+                        it / 2
+                    }
+                ),
+            ) {
+                Symbol(
+                    symbol = symbol,
+                    enabled = isChooseScreen && interactionSource.collectIsFocusedAsState().value,
+                    modifier = Modifier.clickable(isChooseScreen) {
+                        symbol = symbol.enemy
+                    }
+                )
+            }
+        },
+        interactionSource = interactionSource,
+        enabled = isChooseScreen,
         modifier = Modifier.fillMaxWidth()
     )
 
     NavHost(
         navController = navController,
-        startDestination = "choose"
+        startDestination = "choose_screen"
     ) {
-        composable("choose") {
+        composable("choose_screen") {
             Choose(
                 enabled = userName.isNotBlank(),
                 onCreateGame = {
-                    navController.navigate("create")
+                    navController.navigate("create_screen")
                 },
                 onOpenGame = {
-                    navController.navigate("open")
+                    navController.navigate("open_screen")
                 },
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
 
-        composable("create") {
+        composable("create_screen") {
             CreateGame(
                 userName = userName,
+                symbol = symbol,
                 onGameStart = onGameStart,
                 onBackNavigation = {
                     navController.popBackStack()
@@ -76,10 +110,14 @@ fun StartRemote(
             )
         }
 
-        composable("open") {
+        composable("open_screen") {
             OpenGame(
                 userName = userName,
-                onGameStart = onGameStart
+                onGameStart = onGameStart,
+                updatePlayerConfig = {
+                    userName = it.name
+                    symbol = it.symbol
+                }
             )
         }
     }
@@ -155,21 +193,25 @@ private fun WaitingEnemy(
 private fun CreateGame(
     modifier: Modifier = Modifier,
     userName: String,
+    symbol: HashState.Block.Symbol,
     onGameStart: (GameConfig.Remote) -> Unit,
     onBackNavigation: () -> Unit,
     viewModel: CreateGameViewModel = viewModel()
 ) = Column(modifier) {
 
     LaunchedEffect(Unit) {
-        viewModel.createGame(userName)
+        viewModel.createGame(
+            userName = userName,
+            symbol = symbol
+        )
     }
 
     when (val state = viewModel.uiState.collectAsState().value) {
         is CreateGameViewModel.UiState.Creating -> {
             Card(
-                backgroundColor = MaterialTheme.colors.onSurface
+                backgroundColor = colors.onSurface
                     .copy(alpha = 0.3f)
-                    .compositeOver(MaterialTheme.colors.surface),
+                    .compositeOver(colors.surface),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -219,6 +261,7 @@ private fun OpenGame(
     modifier: Modifier = Modifier,
     userName: String,
     onGameStart: (GameConfig.Remote) -> Unit,
+    updatePlayerConfig: (userName: GameConfig.Player) -> Unit,
     viewModel: OpenGameViewModel = viewModel()
 ) = Column(modifier) {
 
@@ -298,6 +341,11 @@ private fun OpenGame(
             }
         }
         is OpenGameViewModel.UiState.WaitingEnemy -> {
+
+            LaunchedEffect(state) {
+                updatePlayerConfig(state.myPlayer)
+            }
+
             WaitingEnemy()
         }
     }

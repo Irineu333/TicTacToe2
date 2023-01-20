@@ -12,11 +12,9 @@ import com.google.firebase.ktx.Firebase
 import com.neo.hash.data.RemotePlayer
 import com.neo.hash.data.toModel
 import com.neo.hash.model.GameConfig
-import com.neo.hash.model.HashState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -77,24 +75,24 @@ class OpenGameViewModel : ViewModel() {
         gameKey: String
     ) {
         val playersSnapshot = snapshot.child("players")
-        val symbolStartsSnapshot = snapshot.child("symbol_starts")
 
         val remotePlayers = playersSnapshot.getValue<List<RemotePlayer>>()!!
-        val symbolStarts = symbolStartsSnapshot.getValue<HashState.Block.Symbol>()!!
 
         val isMyGame = remotePlayers.any { it.id == installationId }
 
         when {
             isMyGame && remotePlayers.size == 1 -> {
 
-                _uiState.value = UiState.WaitingEnemy(gameKey)
+                _uiState.value = UiState.WaitingEnemy(
+                    gameKey = gameKey,
+                    myPlayer = remotePlayers[0].toModel()
+                )
 
                 waitEnemy(gameKey) { updatedRemotePlayers ->
 
                     _uiState.value = UiState.Finished(
                         GameConfig.Remote(
                             players = updatedRemotePlayers.map { it.toModel() },
-                            symbolStarts = symbolStarts,
                             gameKey = gameKey
                         )
                     )
@@ -105,7 +103,6 @@ class OpenGameViewModel : ViewModel() {
                 _uiState.value = UiState.Finished(
                     GameConfig.Remote(
                         players = remotePlayers.map { it.toModel() },
-                        symbolStarts = symbolStarts,
                         gameKey = gameKey
                     )
                 )
@@ -130,7 +127,6 @@ class OpenGameViewModel : ViewModel() {
                     _uiState.value = UiState.Finished(
                         GameConfig.Remote(
                             players = players,
-                            symbolStarts = symbolStarts,
                             gameKey = gameKey
                         )
                     )
@@ -176,7 +172,8 @@ class OpenGameViewModel : ViewModel() {
         object Opening : UiState
 
         data class WaitingEnemy(
-            val gameKey: String
+            val gameKey: String,
+            val myPlayer: GameConfig.Player.Remote
         ) : UiState
 
         data class Finished(

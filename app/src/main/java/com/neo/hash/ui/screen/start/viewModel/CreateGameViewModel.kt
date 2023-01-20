@@ -23,23 +23,23 @@ class CreateGameViewModel : ViewModel() {
 
     private val installation by lazy { FirebaseInstallations.getInstance() }
 
-    fun createGame(userName: String) {
-
+    fun createGame(
+        userName: String,
+        symbol: HashState.Block.Symbol
+    ) {
         val newGameRef = gamesRef.push()
 
-        val symbolStarts = HashState.Block.Symbol.values().random()
-
-        val mySymbol = HashState.Block.Symbol.O
+        val playerTurn = HashState.Block.Symbol.values().random()
 
         installation.id.addOnSuccessListener { result ->
             newGameRef.setValue(
                 mapOf(
-                    "symbol_starts" to symbolStarts,
+                    "player_turn" to playerTurn,
                     "players" to listOf(
                         RemotePlayer(
                             id = result,
                             name = userName,
-                            symbol = mySymbol
+                            symbol = symbol
                         )
                     )
                 )
@@ -53,7 +53,6 @@ class CreateGameViewModel : ViewModel() {
                     _uiState.value = UiState.Finished(
                         GameConfig.Remote(
                             players = remotePlayers.map { it.toModel() },
-                            symbolStarts = symbolStarts,
                             gameKey = newGameRef.key!!
                         )
                     )
