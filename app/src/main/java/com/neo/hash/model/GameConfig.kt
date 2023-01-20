@@ -3,7 +3,7 @@ package com.neo.hash.model
 sealed interface GameConfig {
 
     val players: List<Player>
-    val symbolStarts : HashState.Block.Symbol
+    val symbolStarts: HashState.Block.Symbol
 
     data class Local(
         override val players: List<Player>,
@@ -33,6 +33,7 @@ sealed interface GameConfig {
         }
 
         data class Remote(
+            val id: String,
             override val symbol: HashState.Block.Symbol,
             override val name: String
         ) : Player

@@ -71,34 +71,105 @@ class OpenGameViewModel : ViewModel() {
         val remotePlayers = playersSnapshot.getValue<List<RemotePlayer>>()!!
         val symbolStarts = symbolStartsSnapshot.getValue<HashState.Block.Symbol>()!!
 
-        val inGame = remotePlayers.any { it.id == installationId }
+        val isMyGame = remotePlayers.any { it.id == installationId }
 
         when {
-            inGame && remotePlayers.size == 1 -> {
-                // go to waiting
+            isMyGame && remotePlayers.size == 1 -> {
+
+                _uiState.value = UiState.WaitingEnemy(
+                    gameKey = gameKey
+                )
+
+                waitEnemy(
+                    gameKey = gameKey,
+                ) { updatedRemotePlayers ->
+
+                    _uiState.value = UiState.Finished(
+                        GameConfig.Remote(
+                            players = updatedRemotePlayers.map { it.toModel() },
+                            symbolStarts = symbolStarts,
+                            gameKey = gameKey
+                        )
+                    )
+                }
             }
 
-            inGame && remotePlayers.size == 2 -> {
-                // run game
+            isMyGame && remotePlayers.size == 2 -> {
+                _uiState.value = UiState.Finished(
+                    GameConfig.Remote(
+                        players = remotePlayers.map { it.toModel() },
+                        symbolStarts = symbolStarts,
+                        gameKey = gameKey
+                    )
+                )
             }
 
-            !inGame && remotePlayers.size == 1 -> {
-                // insert my player && run game
+            !isMyGame && remotePlayers.size == 1 -> {
+
+                val mySymbol = remotePlayers[0].symbol.enemy
+
+                val myPlayer = RemotePlayer(
+                    id = installationId,
+                    symbol = mySymbol,
+                    name = userName
+                )
+
+                playersSnapshot.ref.updateChildren(
+                    mapOf("1" to myPlayer)
+                ).addOnSuccessListener {
+
+                    val players = (remotePlayers + myPlayer).map { it.toModel() }
+
+                    _uiState.value = UiState.Finished(
+                        GameConfig.Remote(
+                            players = players,
+                            symbolStarts = symbolStarts,
+                            gameKey = gameKey
+                        )
+                    )
+                }.addOnFailureListener {
+                    _uiState.value = UiState.InputKey
+                }
             }
 
-            !inGame && remotePlayers.size == 2 -> {
-                // enter as an observer
+            !isMyGame && remotePlayers.size == 2 -> {
+                _uiState.value = UiState.InputKey
             }
         }
     }
 
+    private fun waitEnemy(
+        gameKey: String,
+        onFinish: (List<RemotePlayer>) -> Unit
+    ) {
+        gamesRef.child(gameKey)
+            .child("players")
+            .addValueEventListener(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.childrenCount == 2L) {
+                            onFinish(snapshot.getValue<List<RemotePlayer>>()!!)
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        _uiState.value = UiState.InputKey
+                    }
+                }
+            )
+    }
+
     sealed interface UiState {
+        object InputKey : UiState
+
         object Opening : UiState
 
-        data class Opened(
-            val gameConfig: GameConfig.Remote
+        data class WaitingEnemy(
+            val gameKey: String
         ) : UiState
 
-        object InputKey : UiState
+        data class Finished(
+            val gameConfig: GameConfig.Remote
+        ) : UiState
     }
 }

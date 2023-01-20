@@ -20,6 +20,7 @@ class RemotePlayer() {
 }
 
 fun RemotePlayer.toModel() = GameConfig.Player.Remote(
+    id = id,
     name = name,
     symbol = symbol
 )

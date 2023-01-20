@@ -111,6 +111,42 @@ private fun Choose(
 }
 
 @Composable
+private fun WaitingEnemy(
+    gameKey: String,
+    modifier: Modifier = Modifier
+) = Column(modifier) {
+    val clipboardManage = LocalClipboardManager.current
+    val context = LocalContext.current
+
+    Button(
+        onClick = {
+            clipboardManage.setText(AnnotatedString(gameKey))
+            Toast.makeText(context, "Copiado", Toast.LENGTH_SHORT).show()
+        },
+        contentPadding = PaddingValues(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = gameKey)
+    }
+
+    Row(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(12.dp),
+            color = LocalContentColor.current,
+            strokeWidth = 1.5.dp
+        )
+
+        Text(text = "Aguardando adiversário...")
+    }
+}
+
+@Composable
 private fun CreateGame(
     modifier: Modifier = Modifier,
     userName: String,
@@ -150,39 +186,11 @@ private fun CreateGame(
             }
         }
 
-        is CreateGameViewModel.UiState.Waiting -> {
-            val clipboardManage = LocalClipboardManager.current
-            val context = LocalContext.current
-
-            Button(
-                onClick = {
-                    clipboardManage.setText(AnnotatedString(state.gameKey))
-                    Toast.makeText(context, "Copiado", Toast.LENGTH_SHORT).show()
-                },
-                contentPadding = PaddingValues(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = state.gameKey)
-            }
-
-            Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(12.dp),
-                    color = LocalContentColor.current,
-                    strokeWidth = 1.5.dp
-                )
-
-                Text(text = "Aguardando adiversário...")
-            }
+        is CreateGameViewModel.UiState.WaitingEnemy -> {
+            WaitingEnemy(state.gameKey)
         }
 
-        is CreateGameViewModel.UiState.Created -> {
+        is CreateGameViewModel.UiState.Finished -> {
             LaunchedEffect(state) {
                 onGameStart(state.gameConfig)
             }
@@ -222,7 +230,7 @@ private fun OpenGame(
     Spacer(Modifier.height(8.dp))
 
     when (state) {
-        is OpenGameViewModel.UiState.Opened -> {
+        is OpenGameViewModel.UiState.Finished -> {
             LaunchedEffect(state) {
                 onGameStart(state.gameConfig)
             }
@@ -268,6 +276,9 @@ private fun OpenGame(
                     Text(text = "Abrindo jogo...")
                 }
             }
+        }
+        is OpenGameViewModel.UiState.WaitingEnemy -> {
+            WaitingEnemy(state.gameKey)
         }
     }
 }

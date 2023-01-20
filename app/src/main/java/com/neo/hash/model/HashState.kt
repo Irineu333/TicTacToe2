@@ -46,7 +46,12 @@ data class HashState(
     ) {
         enum class Symbol(val code : Int) {
             O(code = 0),
-            X(code = 1)
+            X(code = 1);
+
+            val enemy get() = when(this) {
+                O -> X
+                X -> O
+            }
         }
     }
 

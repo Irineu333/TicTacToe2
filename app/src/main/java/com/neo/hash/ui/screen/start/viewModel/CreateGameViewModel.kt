@@ -44,12 +44,20 @@ class CreateGameViewModel : ViewModel() {
                     )
                 )
             ).addOnSuccessListener {
-                _uiState.value = UiState.Waiting(newGameRef.key!!)
+                _uiState.value = UiState.WaitingEnemy(newGameRef.key!!)
 
-                listenOpponent(
+                waitEnemy(
                     gameKey = newGameRef.key!!,
-                    symbolStarts = symbolStarts
-                )
+                ) { remotePlayers ->
+
+                    _uiState.value = UiState.Finished(
+                        GameConfig.Remote(
+                            players = remotePlayers.map { it.toModel() },
+                            symbolStarts = symbolStarts,
+                            gameKey = newGameRef.key!!
+                        )
+                    )
+                }
             }.addOnFailureListener {
                 _uiState.value = UiState.Error
             }
@@ -58,9 +66,9 @@ class CreateGameViewModel : ViewModel() {
         }
     }
 
-    private fun listenOpponent(
+    private fun waitEnemy(
         gameKey: String,
-        symbolStarts: HashState.Block.Symbol
+        onFinish: (List<RemotePlayer>) -> Unit
     ) {
         gamesRef.child(gameKey)
             .child("players")
@@ -68,21 +76,7 @@ class CreateGameViewModel : ViewModel() {
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.childrenCount == 2L) {
-
-                            val remotePlayer = snapshot.getValue<List<RemotePlayer>>()!!
-
-                            if (remotePlayer[0].symbol != remotePlayer[1].symbol) {
-                                _uiState.value = UiState.Error
-                                return
-                            }
-
-                            _uiState.value = UiState.Created(
-                                GameConfig.Remote(
-                                    players = remotePlayer.map { it.toModel() },
-                                    symbolStarts = symbolStarts,
-                                    gameKey = gameKey
-                                )
-                            )
+                            onFinish(snapshot.getValue<List<RemotePlayer>>()!!)
                         }
                     }
 
@@ -98,11 +92,11 @@ class CreateGameViewModel : ViewModel() {
 
         object Error : UiState
 
-        data class Waiting(
+        data class WaitingEnemy(
             val gameKey: String
         ) : UiState
 
-        data class Created(
+        data class Finished(
             val gameConfig: GameConfig.Remote
         ) : UiState
     }
