@@ -1,6 +1,7 @@
 package com.neo.hash.ui.screen.start
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
@@ -112,26 +113,29 @@ private fun Choose(
 
 @Composable
 private fun WaitingEnemy(
-    gameKey: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gameKey: String? = null
 ) = Column(modifier) {
     val clipboardManage = LocalClipboardManager.current
     val context = LocalContext.current
 
-    Button(
-        onClick = {
-            clipboardManage.setText(AnnotatedString(gameKey))
-            Toast.makeText(context, "Copiado", Toast.LENGTH_SHORT).show()
-        },
-        contentPadding = PaddingValues(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(text = gameKey)
+    if (gameKey != null) {
+        Button(
+            onClick = {
+                clipboardManage.setText(AnnotatedString(gameKey))
+                Toast.makeText(context, "Copiado", Toast.LENGTH_SHORT).show()
+            },
+            contentPadding = PaddingValues(12.dp),
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+                .fillMaxWidth()
+        ) {
+            Text(text = gameKey)
+        }
     }
 
     Row(
         modifier = Modifier
-            .padding(top = 8.dp)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
@@ -187,7 +191,7 @@ private fun CreateGame(
         }
 
         is CreateGameViewModel.UiState.WaitingEnemy -> {
-            WaitingEnemy(state.gameKey)
+            WaitingEnemy(gameKey = state.gameKey)
         }
 
         is CreateGameViewModel.UiState.Finished -> {
@@ -211,7 +215,7 @@ private fun OpenGame(
     viewModel: OpenGameViewModel = viewModel()
 ) = Column(modifier) {
 
-    var gameKey by remember { mutableStateOf("") }
+    var gameKey by rememberSaveable { mutableStateOf("") }
 
     val state = viewModel.uiState.collectAsState().value
 
@@ -278,7 +282,7 @@ private fun OpenGame(
             }
         }
         is OpenGameViewModel.UiState.WaitingEnemy -> {
-            WaitingEnemy(state.gameKey)
+            WaitingEnemy()
         }
     }
 }
