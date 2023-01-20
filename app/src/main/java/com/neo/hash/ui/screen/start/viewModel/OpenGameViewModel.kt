@@ -87,14 +87,9 @@ class OpenGameViewModel : ViewModel() {
         when {
             isMyGame && remotePlayers.size == 1 -> {
 
-                _uiState.value = UiState.WaitingEnemy(
-                    gameKey = gameKey,
-                    userName = remotePlayers[0].name
-                )
+                _uiState.value = UiState.WaitingEnemy(gameKey)
 
-                waitEnemy(
-                    gameKey = gameKey,
-                ) { updatedRemotePlayers ->
+                waitEnemy(gameKey) { updatedRemotePlayers ->
 
                     _uiState.value = UiState.Finished(
                         GameConfig.Remote(
@@ -181,8 +176,7 @@ class OpenGameViewModel : ViewModel() {
         object Opening : UiState
 
         data class WaitingEnemy(
-            val gameKey: String,
-            val userName: String
+            val gameKey: String
         ) : UiState
 
         data class Finished(
