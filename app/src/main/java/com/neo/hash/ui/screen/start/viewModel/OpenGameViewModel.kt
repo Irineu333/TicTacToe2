@@ -1,6 +1,7 @@
 package com.neo.hash.ui.screen.start.viewModel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -12,8 +13,12 @@ import com.neo.hash.data.RemotePlayer
 import com.neo.hash.data.toModel
 import com.neo.hash.model.GameConfig
 import com.neo.hash.model.HashState
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 class OpenGameViewModel : ViewModel() {
 
@@ -24,11 +29,13 @@ class OpenGameViewModel : ViewModel() {
 
     private val installation by lazy { FirebaseInstallations.getInstance() }
 
+    private val _uiMessage = Channel<String>(capacity = Channel.UNLIMITED)
+    val uiMessage = _uiMessage.receiveAsFlow()
+
     fun openGame(
         userName: String,
         gameKey: String
     ) {
-
         _uiState.value = UiState.Opening
 
         val gameRef = gamesRef.child(gameKey)
@@ -45,6 +52,10 @@ class OpenGameViewModel : ViewModel() {
                                 gameKey = gameKey
                             )
                         } else {
+                            viewModelScope.launch {
+                                _uiMessage.send("Jogos não encontrado!")
+                            }
+
                             _uiState.value = UiState.InputKey
                         }
                     }
@@ -135,6 +146,10 @@ class OpenGameViewModel : ViewModel() {
 
             !isMyGame && remotePlayers.size == 2 -> {
                 _uiState.value = UiState.InputKey
+
+                viewModelScope.launch {
+                    _uiMessage.send("O jogo atingiu o máximo de jogadores!")
+                }
             }
         }
     }

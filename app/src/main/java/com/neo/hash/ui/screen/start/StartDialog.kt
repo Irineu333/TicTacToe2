@@ -5,7 +5,9 @@ package com.neo.hash.ui.screen.start
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.MaterialTheme.typography
@@ -41,7 +43,7 @@ fun StartDialog(
 ) {
     Column(
         modifier
-            .padding(32.dp)
+            .padding(horizontal = 32.dp)
             .background(
                 colors.surface,
                 shape = RoundedCornerShape(8.dp)
@@ -51,6 +53,7 @@ fun StartDialog(
                 brush = SolidColor(colors.primary),
                 shape = RoundedCornerShape(8.dp)
             )
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = CenterHorizontally
     ) {

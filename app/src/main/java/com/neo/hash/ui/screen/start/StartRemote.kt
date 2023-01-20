@@ -1,7 +1,7 @@
 package com.neo.hash.ui.screen.start
 
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.neo.hash.model.GameConfig
 import com.neo.hash.ui.screen.start.viewModel.CreateGameViewModel
 import com.neo.hash.ui.screen.start.viewModel.OpenGameViewModel
+import kotlinx.coroutines.flow.collect
 
 @Composable
 fun StartRemote(
@@ -199,8 +200,14 @@ private fun CreateGame(
                 onGameStart(state.gameConfig)
             }
         }
-        CreateGameViewModel.UiState.Error -> {
+        is CreateGameViewModel.UiState.Error -> {
+
+            val context = LocalContext.current
+
             LaunchedEffect(state) {
+
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+
                 onBackNavigation()
             }
         }
@@ -218,6 +225,14 @@ private fun OpenGame(
     var gameKey by rememberSaveable { mutableStateOf("") }
 
     val state = viewModel.uiState.collectAsState().value
+
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.uiMessage.collect {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     OutlinedTextField(
         value = gameKey,
@@ -240,7 +255,8 @@ private fun OpenGame(
             }
         }
 
-        OpenGameViewModel.UiState.InputKey -> {
+        is OpenGameViewModel.UiState.InputKey -> {
+
             Button(
                 onClick = {
                     viewModel.openGame(

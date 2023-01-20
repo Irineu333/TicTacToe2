@@ -59,10 +59,10 @@ class CreateGameViewModel : ViewModel() {
                     )
                 }
             }.addOnFailureListener {
-                _uiState.value = UiState.Error
+                _uiState.value = UiState.Error(it.message)
             }
         }.addOnFailureListener {
-            _uiState.value = UiState.Error
+            _uiState.value = UiState.Error(it.message)
         }
     }
 
@@ -81,7 +81,7 @@ class CreateGameViewModel : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        _uiState.value = UiState.Error
+                        _uiState.value = UiState.Error(error.message)
                     }
                 }
             )
@@ -90,7 +90,9 @@ class CreateGameViewModel : ViewModel() {
     sealed interface UiState {
         object Creating : UiState
 
-        object Error : UiState
+        data class Error(
+            val message: String? = null
+        ) : UiState
 
         data class WaitingEnemy(
             val gameKey: String
