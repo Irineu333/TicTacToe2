@@ -3,6 +3,7 @@ package com.neo.hash.ui.screen.start
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -31,9 +32,7 @@ fun StartRemote(
 
     val navController = rememberNavController()
 
-    val currentDestination = navController
-        .currentBackStackEntryAsState()
-        .value?.destination
+    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
 
     OutlinedTextField(
         value = userName,
@@ -67,21 +66,18 @@ fun StartRemote(
         composable("create") {
             CreateGame(
                 userName = userName,
-                modifier = Modifier.padding(top = 8.dp),
                 onGameStart = onGameStart,
                 onBackNavigation = {
                     navController.popBackStack()
-                }
+                },
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
 
         composable("open") {
             OpenGame(
                 userName = userName,
-                onGameStart = onGameStart,
-                onBackNavigation = {
-                    navController.popBackStack()
-                }
+                onGameStart = onGameStart
             )
         }
     }
@@ -115,83 +111,6 @@ private fun Choose(
 }
 
 @Composable
-private fun OpenGame(
-    modifier: Modifier = Modifier,
-    userName: String,
-    onGameStart: (GameConfig.Remote) -> Unit,
-    onBackNavigation: () -> Unit,
-    viewModel: OpenGameViewModel = viewModel()
-) = Column(modifier) {
-
-    var gameKey by remember { mutableStateOf("") }
-
-    val state = viewModel.uiState.collectAsState().value
-
-    OutlinedTextField(
-        value = gameKey,
-        onValueChange = {
-            gameKey = it.trim()
-        },
-        label = {
-            Text(text = "Código do jogo")
-        },
-        enabled = state is OpenGameViewModel.UiState.InputKey,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    Spacer(androidx.compose.ui.Modifier.height(8.dp))
-
-    when (state) {
-        is OpenGameViewModel.UiState.Opened -> {
-            LaunchedEffect(state) {
-                onGameStart(state.gameConfig)
-            }
-        }
-        OpenGameViewModel.UiState.InputKey -> {
-            Button(
-                onClick = {
-                    viewModel.openGame(
-                        userName = userName,
-                        gameKey = gameKey
-                    )
-                },
-                enabled = gameKey.isNotBlank(),
-                contentPadding = PaddingValues(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Abrir")
-            }
-        }
-
-        OpenGameViewModel.UiState.Opening -> {
-            Card(
-                backgroundColor = MaterialTheme.colors.onSurface
-                    .copy(alpha = 0.3f)
-                    .compositeOver(MaterialTheme.colors.surface),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = androidx.compose.ui.Modifier.padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        8.dp,
-                        Alignment.CenterHorizontally
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CircularProgressIndicator(
-                        modifier = androidx.compose.ui.Modifier.size(12.dp),
-                        color = LocalContentColor.current,
-                        strokeWidth = 1.5.dp
-                    )
-
-                    Text(text = "Abrindo jogo...")
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun CreateGame(
     modifier: Modifier = Modifier,
     userName: String,
@@ -213,7 +132,7 @@ private fun CreateGame(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
-                    modifier = androidx.compose.ui.Modifier.padding(12.dp),
+                    modifier = Modifier.padding(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(
                         8.dp,
                         Alignment.CenterHorizontally
@@ -221,7 +140,7 @@ private fun CreateGame(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     CircularProgressIndicator(
-                        modifier = androidx.compose.ui.Modifier.size(12.dp),
+                        modifier = Modifier.size(12.dp),
                         color = LocalContentColor.current,
                         strokeWidth = 1.5.dp
                     )
@@ -254,7 +173,7 @@ private fun CreateGame(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CircularProgressIndicator(
-                    modifier = androidx.compose.ui.Modifier.size(12.dp),
+                    modifier = Modifier.size(12.dp),
                     color = LocalContentColor.current,
                     strokeWidth = 1.5.dp
                 )
@@ -271,6 +190,83 @@ private fun CreateGame(
         CreateGameViewModel.UiState.Error -> {
             LaunchedEffect(state) {
                 onBackNavigation()
+            }
+        }
+    }
+}
+
+@Composable
+private fun OpenGame(
+    modifier: Modifier = Modifier,
+    userName: String,
+    onGameStart: (GameConfig.Remote) -> Unit,
+    viewModel: OpenGameViewModel = viewModel()
+) = Column(modifier) {
+
+    var gameKey by remember { mutableStateOf("") }
+
+    val state = viewModel.uiState.collectAsState().value
+
+    OutlinedTextField(
+        value = gameKey,
+        onValueChange = {
+            gameKey = it.trim()
+        },
+        label = {
+            Text(text = "Código do jogo")
+        },
+        enabled = state is OpenGameViewModel.UiState.InputKey,
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(Modifier.height(8.dp))
+
+    when (state) {
+        is OpenGameViewModel.UiState.Opened -> {
+            LaunchedEffect(state) {
+                onGameStart(state.gameConfig)
+            }
+        }
+
+        OpenGameViewModel.UiState.InputKey -> {
+            Button(
+                onClick = {
+                    viewModel.openGame(
+                        userName = userName,
+                        gameKey = gameKey
+                    )
+                },
+                enabled = gameKey.isNotBlank(),
+                contentPadding = PaddingValues(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Abrir")
+            }
+        }
+
+        OpenGameViewModel.UiState.Opening -> {
+            Card(
+                backgroundColor = colors.onSurface
+                    .copy(alpha = 0.3f)
+                    .compositeOver(colors.surface),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        8.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        color = LocalContentColor.current,
+                        strokeWidth = 1.5.dp
+                    )
+
+                    Text(text = "Abrindo jogo...")
+                }
             }
         }
     }

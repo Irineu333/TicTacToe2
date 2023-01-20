@@ -33,47 +33,17 @@ class OpenGameViewModel : ViewModel() {
 
         val gameRef = gamesRef.child(gameKey)
 
-        installation.id.addOnSuccessListener { id ->
+        installation.id.addOnSuccessListener { installationId ->
             gameRef.addValueEventListener(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
-
-                            val playersSnapshot = snapshot.child("players")
-
-                            val remotePlayers = playersSnapshot
-                                .getValue<List<RemotePlayer>>()!!
-
-                            val symbolStarts = snapshot.child("symbol_starts")
-                                .getValue<HashState.Block.Symbol>()!!
-
-                            if (remotePlayers.size == 1) {
-
-                                val player = RemotePlayer(
-                                    id = id,
-                                    symbol = HashState.Block.Symbol.X,
-                                    name = userName
-                                )
-
-                                playersSnapshot.ref.updateChildren(
-                                        mapOf("1" to player)
-                                    ).addOnSuccessListener {
-
-                                        val players = (remotePlayers + player).map { it.toModel() }
-
-                                        _uiState.value = UiState.Opened(
-                                            GameConfig.Remote(
-                                                players = players,
-                                                symbolStarts = symbolStarts,
-                                                gameKey = gameKey
-                                            )
-                                        )
-                                    }.addOnFailureListener {
-                                        _uiState.value = UiState.InputKey
-                                    }
-                            } else {
-                                _uiState.value = UiState.InputKey
-                            }
+                            handlerOpenGame(
+                                snapshot = snapshot,
+                                installationId = installationId,
+                                userName = userName,
+                                gameKey = gameKey
+                            )
                         } else {
                             _uiState.value = UiState.InputKey
                         }
@@ -86,6 +56,39 @@ class OpenGameViewModel : ViewModel() {
             )
         }.addOnFailureListener {
             _uiState.value = UiState.InputKey
+        }
+    }
+
+    private fun handlerOpenGame(
+        snapshot: DataSnapshot,
+        installationId: String,
+        userName: String,
+        gameKey: String
+    ) {
+        val playersSnapshot = snapshot.child("players")
+        val symbolStartsSnapshot = snapshot.child("symbol_starts")
+
+        val remotePlayers = playersSnapshot.getValue<List<RemotePlayer>>()!!
+        val symbolStarts = symbolStartsSnapshot.getValue<HashState.Block.Symbol>()!!
+
+        val inGame = remotePlayers.any { it.id == installationId }
+
+        when {
+            inGame && remotePlayers.size == 1 -> {
+                // go to waiting
+            }
+
+            inGame && remotePlayers.size == 2 -> {
+                // run game
+            }
+
+            !inGame && remotePlayers.size == 1 -> {
+                // insert my player && run game
+            }
+
+            !inGame && remotePlayers.size == 2 -> {
+                // enter as an observer
+            }
         }
     }
 
