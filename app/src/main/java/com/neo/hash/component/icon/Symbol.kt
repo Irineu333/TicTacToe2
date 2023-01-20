@@ -1,6 +1,5 @@
 package com.neo.hash.component.icon
 
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
@@ -15,9 +14,7 @@ import com.neo.hash.model.HashState
 fun Symbol(
     symbol: HashState.Block.Symbol,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    color: Color = if (enabled) colors.primary else
-        colors.onSurface.copy(ContentAlpha.disabled)
+    color: Color = colors.primary
 ) = Icon(
     imageVector = when (symbol) {
         HashState.Block.Symbol.O -> Icons.Outlined.Circle

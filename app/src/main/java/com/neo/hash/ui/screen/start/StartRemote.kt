@@ -8,6 +8,10 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.rounded.ContentPaste
+import androidx.compose.material.icons.twotone.ContentPaste
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -34,6 +38,8 @@ fun StartRemote(
     onGameStart: (GameConfig.Remote) -> Unit
 ) = Column(modifier) {
 
+    var waitingInOpenGame by remember { mutableStateOf(false) }
+
     var userName by rememberSaveable { mutableStateOf("") }
     var symbol by rememberSaveable { mutableStateOf(HashState.Block.Symbol.random()) }
 
@@ -55,7 +61,7 @@ fun StartRemote(
         },
         trailingIcon = {
             AnimatedVisibility(
-                visible = currentDestination?.route != "open_screen",
+                visible = currentDestination?.route != "open_screen" || waitingInOpenGame,
                 enter = fadeIn() + slideInHorizontally(
                     initialOffsetX = {
                         it / 2
@@ -67,13 +73,16 @@ fun StartRemote(
                     }
                 ),
             ) {
-                Symbol(
-                    symbol = symbol,
-                    enabled = isChooseScreen && interactionSource.collectIsFocusedAsState().value,
-                    modifier = Modifier.clickable(isChooseScreen) {
-                        symbol = symbol.enemy
-                    }
-                )
+                IconButton(onClick = { symbol = symbol.enemy }, enabled = isChooseScreen) {
+
+                    val isFocused = interactionSource.collectIsFocusedAsState().value
+
+                    Symbol(
+                        symbol = symbol,
+                        color = if (isFocused) colors.primary else
+                            colors.onSurface.copy(ContentAlpha.disabled),
+                    )
+                }
             }
         },
         interactionSource = interactionSource,
@@ -115,8 +124,13 @@ fun StartRemote(
                 userName = userName,
                 onGameStart = onGameStart,
                 updatePlayerConfig = {
-                    userName = it.name
-                    symbol = it.symbol
+
+                    waitingInOpenGame = it != null
+
+                    if (it != null) {
+                        userName = it.name
+                        symbol = it.symbol
+                    }
                 }
             )
         }
@@ -261,7 +275,7 @@ private fun OpenGame(
     modifier: Modifier = Modifier,
     userName: String,
     onGameStart: (GameConfig.Remote) -> Unit,
-    updatePlayerConfig: (userName: GameConfig.Player) -> Unit,
+    updatePlayerConfig: (userName: GameConfig.Player?) -> Unit,
     viewModel: OpenGameViewModel = viewModel()
 ) = Column(modifier) {
 
@@ -271,11 +285,17 @@ private fun OpenGame(
 
     val context = LocalContext.current
 
+    val clipboardManager = LocalClipboardManager.current
+
     LaunchedEffect(Unit) {
         viewModel.uiMessage.collect {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         }
     }
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    val isInputKeyScreen = state is OpenGameViewModel.UiState.InputKey
 
     OutlinedTextField(
         value = gameKey,
@@ -285,7 +305,41 @@ private fun OpenGame(
         label = {
             Text(text = "Código do jogo")
         },
-        enabled = state is OpenGameViewModel.UiState.InputKey,
+        trailingIcon = {
+            AnimatedVisibility(
+                visible = isInputKeyScreen,
+                enter = fadeIn() + slideInHorizontally(
+                    initialOffsetX = {
+                        it / 2
+                    }
+                ),
+                exit = fadeOut() + slideOutHorizontally(
+                    targetOffsetX = {
+                        it / 2
+                    }
+                ),
+            ) {
+                IconButton(
+                    onClick = {
+                        clipboardManager.getText()?.let {
+                            gameKey = it.text
+                        }
+                    },
+                    enabled = isInputKeyScreen
+                ) {
+                    val isFocused = interactionSource.collectIsFocusedAsState().value
+
+                    Icon(
+                        imageVector = Icons.Rounded.ContentPaste,
+                        tint = if (isFocused) colors.primary else
+                            colors.onSurface.copy(ContentAlpha.disabled),
+                        contentDescription = null
+                    )
+                }
+            }
+        },
+        interactionSource = interactionSource,
+        enabled = isInputKeyScreen,
         modifier = Modifier.fillMaxWidth()
     )
 
@@ -344,6 +398,12 @@ private fun OpenGame(
 
             LaunchedEffect(state) {
                 updatePlayerConfig(state.myPlayer)
+            }
+
+            DisposableEffect(state) {
+                onDispose {
+                    updatePlayerConfig(null)
+                }
             }
 
             WaitingEnemy()
