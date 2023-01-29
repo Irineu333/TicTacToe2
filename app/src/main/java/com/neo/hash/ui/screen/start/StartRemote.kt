@@ -49,8 +49,6 @@ fun StartRemote(
 
     val isChooseScreen = currentDestination?.route == "choose_screen"
 
-    val interactionSource = remember { MutableInteractionSource() }
-
     OutlinedTextField(
         value = userName,
         onValueChange = {
@@ -73,19 +71,20 @@ fun StartRemote(
                     }
                 ),
             ) {
-                IconButton(onClick = { symbol = symbol.enemy }, enabled = isChooseScreen) {
-
-                    val isFocused = interactionSource.collectIsFocusedAsState().value
-
+                IconButton(
+                    onClick = {
+                        symbol = symbol.enemy
+                    },
+                    enabled = isChooseScreen
+                ) {
                     Symbol(
                         symbol = symbol,
-                        color = if (isFocused) colors.primary else
+                        color = if (isChooseScreen) colors.primary else
                             colors.onSurface.copy(ContentAlpha.disabled),
                     )
                 }
             }
         },
-        interactionSource = interactionSource,
         enabled = isChooseScreen,
         modifier = Modifier.fillMaxWidth()
     )
@@ -169,6 +168,7 @@ private fun WaitingEnemy(
     modifier: Modifier = Modifier,
     gameKey: String? = null
 ) = Column(modifier) {
+
     val clipboardManage = LocalClipboardManager.current
     val context = LocalContext.current
 
@@ -293,8 +293,6 @@ private fun OpenGame(
         }
     }
 
-    val interactionSource = remember { MutableInteractionSource() }
-
     val isInputKeyScreen = state is OpenGameViewModel.UiState.InputKey
 
     OutlinedTextField(
@@ -327,18 +325,15 @@ private fun OpenGame(
                     },
                     enabled = isInputKeyScreen
                 ) {
-                    val isFocused = interactionSource.collectIsFocusedAsState().value
 
                     Icon(
                         imageVector = Icons.Rounded.ContentPaste,
-                        tint = if (isFocused) colors.primary else
-                            colors.onSurface.copy(ContentAlpha.disabled),
+                        tint = colors.primary,
                         contentDescription = null
                     )
                 }
             }
         },
-        interactionSource = interactionSource,
         enabled = isInputKeyScreen,
         modifier = Modifier.fillMaxWidth()
     )
