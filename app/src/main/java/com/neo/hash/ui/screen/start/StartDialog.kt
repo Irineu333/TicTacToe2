@@ -2,6 +2,7 @@
 
 package com.neo.hash.ui.screen.start
 
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,37 +43,40 @@ fun StartDialog(
     onDismissRequest = onDismissRequest,
     properties = DialogProperties(usePlatformDefaultWidth = false)
 ) {
-    Column(
-        modifier
-            .padding(horizontal = 32.dp)
-            .background(
-                colors.surface,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .border(
-                width = 2.dp,
-                brush = SolidColor(colors.primary),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        horizontalAlignment = CenterHorizontally
-    ) {
+    BoxWithConstraints {
 
-        Text(
-            text = gameMode.title,
-            style = typography.subtitle1,
-            fontSize = 18.sp
-        )
+        Column(
+            modifier
+                .width(maxWidth - 64.dp)
+                .background(
+                    color = colors.surface,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .border(
+                    width = 2.dp,
+                    brush = SolidColor(colors.primary),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = CenterHorizontally
+        ) {
 
-        Spacer(Modifier.height(8.dp))
-
-        when (gameMode) {
-            GameMode.INPUT -> Unit
-            GameMode.PHONE -> Unit
-            GameMode.REMOTE -> StartRemote(
-                onGameStart = onGameStart
+            Text(
+                text = gameMode.title,
+                style = typography.subtitle1,
+                fontSize = 18.sp
             )
+
+            Spacer(Modifier.height(8.dp))
+
+            when (gameMode) {
+                GameMode.INPUT -> Unit
+                GameMode.PHONE -> Unit
+                GameMode.REMOTE -> StartRemote(
+                    onGameStart = onGameStart
+                )
+            }
         }
     }
 }
