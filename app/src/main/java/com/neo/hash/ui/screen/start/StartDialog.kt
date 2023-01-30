@@ -2,7 +2,6 @@
 
 package com.neo.hash.ui.screen.start
 
-import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,19 +16,19 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.neo.hash.component.spacer.VerticalSpacer
 import com.neo.hash.model.GameConfig
 import com.neo.hash.ui.theme.HashBackground
 import com.neo.hash.ui.theme.HashTheme
 
 enum class GameMode(val title: String) {
     INPUT("Jogador vs Jogados"),
-    PHONE("Jogados vs AI"),
+    PHONE("Jogados vs Celular"),
     REMOTE("Jogar online")
 }
 
@@ -68,7 +67,7 @@ fun StartDialog(
                 fontSize = 18.sp
             )
 
-            Spacer(Modifier.height(8.dp))
+            VerticalSpacer(8.dp)
 
             when (gameMode) {
                 GameMode.INPUT -> Unit
@@ -87,7 +86,7 @@ private fun DefaultPreview() {
     HashTheme {
         HashBackground {
             StartDialog(
-                GameMode.REMOTE,
+                gameMode = GameMode.REMOTE,
                 onDismissRequest = {},
                 onGameStart = {}
             )
