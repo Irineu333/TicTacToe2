@@ -272,13 +272,13 @@ private fun Winner(
         val columnRadius = columnSize / 2
 
         val start = Offset(
-            x = startBlock.row * rowSize - rowRadius,
-            y = startBlock.column * columnSize - columnRadius
+            x = startBlock.row.inc() * rowSize - rowRadius,
+            y = startBlock.column.inc() * columnSize - columnRadius
         )
 
         val end = Offset(
-            x = endBlock.row * rowSize - rowRadius,
-            y = endBlock.column * columnSize - columnRadius
+            x = endBlock.row.inc() * rowSize - rowRadius,
+            y = endBlock.column.inc() * columnSize - columnRadius
         )
 
         val length = end - start

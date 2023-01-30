@@ -1,6 +1,6 @@
 package com.neo.hash.component.hashTable
 
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -38,11 +38,11 @@ data class HashTableConfig(
         @Composable
         fun getDefault(
             hash: Hash = Hash(
-                color = MaterialTheme.colors.onBackground,
+                color = colors.onBackground,
                 width = 2.dp
             ),
             symbol: Symbol = Symbol(
-                color = MaterialTheme.colors.primary,
+                color = colors.primary,
                 width = 2.dp,
                 animate = true
             ),

@@ -22,6 +22,18 @@ private fun DefaultPreview() {
                         row = 1,
                         column = 1,
                         newSymbol = HashState.Block.Symbol.X
+                    ).copy(
+                        winner = HashState.Winner(
+                            blocks = listOf(
+                                HashState.Block(
+                                    0,2
+                                ),
+                                HashState.Block(
+                                    2,0
+                                )
+                            ),
+                            symbol = HashState.Block.Symbol.O
+                        )
                     )
                 )
             }

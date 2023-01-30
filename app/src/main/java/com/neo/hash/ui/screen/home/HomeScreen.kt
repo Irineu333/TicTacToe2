@@ -22,6 +22,7 @@ import com.google.accompanist.pager.*
 import com.neo.hash.annotation.DevicesPreview
 import com.neo.hash.annotation.ThemesPreview
 import com.neo.hash.component.hashTable.HashTable
+import com.neo.hash.component.hashTable.HashTableConfig
 import com.neo.hash.model.HashState
 import com.neo.hash.ui.screen.start.GameMode
 import com.neo.hash.ui.screen.start.StartDialog
@@ -31,7 +32,28 @@ import com.neo.hash.util.extension.showAround
 import com.neo.hash.util.extension.squareSize
 
 internal val HashList = listOf(
-    HashState(3, 3),
+    HashState(3, 3).addedPlayer(
+        2, 0, HashState.Block.Symbol.O
+    ).addedPlayer(
+        1, 1, HashState.Block.Symbol.O
+    ).addedPlayer(
+        0, 2, HashState.Block.Symbol.O
+    ).copy(
+        winner = HashState.Winner(
+            blocks = listOf(
+                HashState.Block(
+                    0, 2
+                ),
+                HashState.Block(
+                    1, 1
+                ),
+                HashState.Block(
+                    2, 0
+                )
+            ),
+            symbol = HashState.Block.Symbol.O
+        )
+    ),
     HashState(4, 4),
     HashState(5, 5)
 )
@@ -50,6 +72,13 @@ fun HomeScreen(
             HashTable(
                 hash = HashList[pageIndex],
                 enabledOnClick = false,
+                config = HashTableConfig.getDefault(
+                    symbol = HashTableConfig.Symbol(
+                        color = colors.primary,
+                        width = 2.dp,
+                        animate = false
+                    )
+                ),
                 modifier = Modifier
                     .showAround(pageIndex)
                     .border(
