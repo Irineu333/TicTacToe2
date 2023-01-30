@@ -44,43 +44,59 @@ fun StartRemote(
 
     val isChooseScreen = currentRoute == "choose_screen"
 
-    OutlinedTextField(value = userName, onValueChange = {
-        userName = it.trim()
-    }, label = {
-        Text(text = "Nome do jogador")
-    }, trailingIcon = {
-        AnimatedVisibility(
-            visible = currentRoute != "open_screen" || waitingInOpenGame,
-            enter = fadeIn() + slideInHorizontally(initialOffsetX = {
-                it / 2
-            }),
-            exit = fadeOut() + slideOutHorizontally(targetOffsetX = {
-                it / 2
-            }),
-        ) {
-            IconButton(
-                onClick = {
-                    symbol = symbol.enemy
-                }, enabled = isChooseScreen
+    OutlinedTextField(
+        value = userName,
+        onValueChange = {
+            userName = it.trim()
+        },
+        label = {
+            Text(text = "Nome do jogador")
+        },
+        trailingIcon = {
+            AnimatedVisibility(
+                visible = currentRoute != "open_screen" || waitingInOpenGame,
+                enter = fadeIn() + slideInHorizontally(
+                    initialOffsetX = {
+                        it / 2
+                    }
+                ),
+                exit = fadeOut() + slideOutHorizontally(
+                    targetOffsetX = {
+                        it / 2
+                    }
+                ),
             ) {
-                Symbol(
-                    symbol = symbol,
-                    color = colors.stateColor(isChooseScreen),
-                )
+                IconButton(
+                    onClick = {
+                        symbol = symbol.enemy
+                    },
+                    enabled = isChooseScreen
+                ) {
+                    Symbol(
+                        symbol = symbol,
+                        color = colors.stateColor(isChooseScreen),
+                    )
+                }
             }
-        }
-    }, enabled = isChooseScreen, modifier = Modifier.fillMaxWidth()
+        },
+        enabled = isChooseScreen,
+        modifier = Modifier.fillMaxWidth()
     )
 
     NavHost(
-        navController = navController, startDestination = "choose_screen"
+        navController = navController,
+        startDestination = "choose_screen"
     ) {
         composable("choose_screen") {
-            Choose(enabled = userName.isNotBlank(), onCreateGame = {
-                navController.navigate("create_screen")
-            }, onOpenGame = {
-                navController.navigate("open_screen")
-            }, modifier = Modifier.padding(top = 8.dp)
+            Choose(
+                enabled = userName.isNotBlank(),
+                onCreateGame = {
+                    navController.navigate("create_screen")
+                },
+                onOpenGame = {
+                    navController.navigate("open_screen")
+                },
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
 
@@ -97,15 +113,19 @@ fun StartRemote(
         }
 
         composable("open_screen") {
-            OpenGame(userName = userName, onGameStart = onGameStart, updatePlayerConfig = {
+            OpenGame(
+                userName = userName,
+                onGameStart = onGameStart,
+                updatePlayerConfig = {
 
-                waitingInOpenGame = it != null
+                    waitingInOpenGame = it != null
 
-                if (it != null) {
-                    userName = it.name
-                    symbol = it.symbol
+                    if (it != null) {
+                        userName = it.name
+                        symbol = it.symbol
+                    }
                 }
-            })
+            )
         }
     }
 }
@@ -166,7 +186,9 @@ private fun WaitingEnemy(
         verticalAlignment = Alignment.CenterVertically
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(12.dp), color = LocalContentColor.current, strokeWidth = 1.5.dp
+            modifier = Modifier.size(12.dp),
+            color = LocalContentColor.current,
+            strokeWidth = 1.5.dp
         )
 
         Text(text = "Aguardando adiversário...")
@@ -185,7 +207,8 @@ private fun CreateGame(
 
     LaunchedEffect(Unit) {
         viewModel.createGame(
-            userName = userName, symbol = symbol
+            userName = userName,
+            symbol = symbol
         )
     }
 
@@ -262,36 +285,47 @@ private fun OpenGame(
 
     val isInputKeyScreen = state is OpenGameViewModel.UiState.InputKey
 
-    OutlinedTextField(value = gameKey, onValueChange = {
-        gameKey = it.trim()
-    }, label = {
-        Text(text = "Código do jogo")
-    }, trailingIcon = {
-        AnimatedVisibility(
-            visible = isInputKeyScreen,
-            enter = fadeIn() + slideInHorizontally(initialOffsetX = {
-                it / 2
-            }),
-            exit = fadeOut() + slideOutHorizontally(targetOffsetX = {
-                it / 2
-            }),
-        ) {
-            IconButton(
-                onClick = {
-                    clipboardManager.getText()?.let {
-                        gameKey = it.text
+    OutlinedTextField(
+        value = gameKey,
+        onValueChange = {
+            gameKey = it.trim()
+        },
+        label = {
+            Text(text = "Código do jogo")
+        },
+        trailingIcon = {
+            AnimatedVisibility(
+                visible = isInputKeyScreen,
+                enter = fadeIn() + slideInHorizontally(
+                    initialOffsetX = {
+                        it / 2
                     }
-                }, enabled = isInputKeyScreen
+                ),
+                exit = fadeOut() + slideOutHorizontally(
+                    targetOffsetX = {
+                        it / 2
+                    }
+                ),
             ) {
+                IconButton(
+                    onClick = {
+                        clipboardManager.getText()?.let {
+                            gameKey = it.text
+                        }
+                    },
+                    enabled = isInputKeyScreen
+                ) {
 
-                Icon(
-                    imageVector = Icons.Rounded.ContentPaste,
-                    tint = colors.primary,
-                    contentDescription = null
-                )
+                    Icon(
+                        imageVector = Icons.Rounded.ContentPaste,
+                        tint = colors.primary,
+                        contentDescription = null
+                    )
+                }
             }
-        }
-    }, enabled = isInputKeyScreen, modifier = Modifier.fillMaxWidth()
+        },
+        enabled = isInputKeyScreen,
+        modifier = Modifier.fillMaxWidth()
     )
 
     Spacer(Modifier.height(8.dp))
@@ -308,7 +342,8 @@ private fun OpenGame(
             Button(
                 onClick = {
                     viewModel.openGame(
-                        userName = userName, gameKey = gameKey
+                        userName = userName,
+                        gameKey = gameKey
                     )
                 },
                 enabled = gameKey.isNotBlank(),
