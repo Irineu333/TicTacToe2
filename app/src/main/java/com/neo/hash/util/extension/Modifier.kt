@@ -12,13 +12,17 @@ import com.neo.hash.util.function.inverseOf
 import kotlin.math.absoluteValue
 
 context (PagerScope)
-fun Modifier.showAround(pageIndex : Int) = graphicsLayer {
+fun Modifier.depthByOffset(
+    pageIndex: Int,
+    minScale: Float = 0.8f,
+    minAlpha: Float = 0.5f,
+) = graphicsLayer {
 
     val pageOffset =
         calculateCurrentOffsetForPage(pageIndex).absoluteValue
 
     interpolate(
-        start = 0.8f,
+        start = minScale,
         stop = 1f,
         fraction = pageOffset
             .coerceIn(0f, 1f)
@@ -29,7 +33,7 @@ fun Modifier.showAround(pageIndex : Int) = graphicsLayer {
     }
 
     alpha = interpolate(
-        start = 0.5f,
+        start = minAlpha,
         stop = 1f,
         fraction = pageOffset
             .coerceIn(0f, 1f)
