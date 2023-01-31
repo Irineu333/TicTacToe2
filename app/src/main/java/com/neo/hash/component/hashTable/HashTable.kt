@@ -22,30 +22,41 @@ fun HashTable(
     onClick: (HashState.Block) -> Unit = {},
     enabledOnClick: Boolean = true,
     config: HashTableConfig = HashTableConfig.getDefault()
-) = Box(modifier) {
-    Blocks(
-        hash = hash,
-        onClick = onClick,
-        enabledOnClick = enabledOnClick,
-        config = config.symbol,
-        modifier = Modifier.wrapContentSize()
-    )
+) = BoxWithConstraints(modifier) {
 
-    Hash(
-        rows = hash.rows,
-        columns = hash.columns,
-        config = config.hash,
-        modifier = Modifier.matchParentSize()
-    )
+    val blockMaxWidth = maxWidth / hash.columns
+    val blockMaxWeight = maxHeight / hash.rows
 
-    if (hash.winner != null) {
-        Winner(
-            rows = hash.rows,
-            columns = hash.columns,
-            winner = hash.winner,
-            config = config.scratch,
+    val blockSize = minOf(blockMaxWidth, blockMaxWeight)
+
+    val width = blockSize * hash.columns
+    val height = blockSize * hash.rows
+
+    Box(Modifier.size(width, height)) {
+        Blocks(
+            hash = hash,
+            onClick = onClick,
+            enabledOnClick = enabledOnClick,
+            config = config.symbol,
             modifier = Modifier.matchParentSize()
         )
+
+        Hash(
+            rows = hash.rows,
+            columns = hash.columns,
+            config = config.hash,
+            modifier = Modifier.matchParentSize()
+        )
+
+        if (hash.winner != null) {
+            Winner(
+                rows = hash.rows,
+                columns = hash.columns,
+                winner = hash.winner,
+                config = config.scratch,
+                modifier = Modifier.matchParentSize()
+            )
+        }
     }
 }
 
@@ -58,35 +69,26 @@ private fun Blocks(
     modifier: Modifier = Modifier
 ) = BoxWithConstraints(modifier) {
 
-    val width = maxWidth / hash.columns
-    val height = maxHeight / hash.rows
+    val blockWidth = maxWidth / hash.columns
+    val blockHeight = maxHeight / hash.rows
 
-    val size = minOf(width, height)
+    for (row in 0 until hash.rows) {
+        for (column in 0 until hash.columns) {
 
-    Box(
-        Modifier.size(
-            width = size * hash.columns,
-            height = size * hash.rows,
-        )
-    ) {
-        for (row in 0 until hash.rows) {
-            for (column in 0 until hash.columns) {
+            val block = hash[row, column]
 
-                val block = hash[row, column]
-
-                Block(
-                    block = block,
-                    onClick = onClick,
-                    enabledOnClick = enabledOnClick,
-                    config = config,
-                    modifier = Modifier
-                        .size(size)
-                        .offset(
-                            x = size * column,
-                            y = size * row,
-                        )
-                )
-            }
+            Block(
+                block = block,
+                onClick = onClick,
+                enabledOnClick = enabledOnClick,
+                config = config,
+                modifier = Modifier
+                    .size(blockWidth, blockHeight)
+                    .offset(
+                        x = blockWidth * column,
+                        y = blockHeight * row,
+                    )
+            )
         }
     }
 }

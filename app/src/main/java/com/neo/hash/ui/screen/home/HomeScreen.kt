@@ -74,7 +74,7 @@ fun HomeScreen(
             } else {
                 val hash by remember {
                     mutableStateOf(
-                        HashState(6, 6).preview()
+                        HashState(6, 7).preview()
                     )
                 }
 
