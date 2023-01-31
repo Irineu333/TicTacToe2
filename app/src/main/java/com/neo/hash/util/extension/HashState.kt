@@ -7,13 +7,17 @@ fun HashState.preview(): HashState {
     var state: HashState = this
     val blocks = mutableListOf<HashState.Block>()
 
-    for (index in 0 until  winnerBlocks) {
+    for (row in winnerBlocks.dec() downTo  0) {
+
+        val column = winnerBlocks.dec() - row
+
         state = state.addedPlayer(
-            index, index,
+            row,
+            column,
             HashState.Block.Symbol.O
         )
 
-        blocks.add(HashState.Block(index, index))
+        blocks.add(HashState.Block(row, column))
     }
 
     return state.copy(
