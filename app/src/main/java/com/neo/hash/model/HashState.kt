@@ -3,6 +3,7 @@ package com.neo.hash.model
 data class HashState(
     val rows: Int,
     val columns: Int,
+    val winnerBlocks: Int = minOf(rows, columns),
     val winner: Winner? = null,
     val blocks: List<List<Block>> = emptyBlocks(rows, columns)
 ) {
@@ -10,6 +11,7 @@ data class HashState(
     init {
         check(blocks.size == rows)
         check(blocks.all { it.size == columns })
+        check(winnerBlocks <= minOf(rows, columns))
     }
 
     operator fun get(row: Int, column: Int): Block {
@@ -44,14 +46,15 @@ data class HashState(
         val column: Int,
         val symbol: Symbol? = null
     ) {
-        enum class Symbol(val code : Int) {
+        enum class Symbol(val code: Int) {
             O(code = 0),
             X(code = 1);
 
-            val enemy get() = when(this) {
-                O -> X
-                X -> O
-            }
+            val enemy
+                get() = when (this) {
+                    O -> X
+                    X -> O
+                }
 
             companion object {
                 fun random(): Symbol {

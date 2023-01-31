@@ -28,34 +28,15 @@ import com.neo.hash.ui.screen.start.GameMode
 import com.neo.hash.ui.screen.start.StartDialog
 import com.neo.hash.ui.theme.HashBackground
 import com.neo.hash.ui.theme.HashTheme
+import com.neo.hash.util.extension.preview
 import com.neo.hash.util.extension.showAround
 import com.neo.hash.util.extension.squareSize
 
 internal val HashList = listOf(
-    HashState(3, 3).addedPlayer(
-        2, 0, HashState.Block.Symbol.O
-    ).addedPlayer(
-        1, 1, HashState.Block.Symbol.O
-    ).addedPlayer(
-        0, 2, HashState.Block.Symbol.O
-    ).copy(
-        winner = HashState.Winner(
-            blocks = listOf(
-                HashState.Block(
-                    0, 2
-                ),
-                HashState.Block(
-                    1, 1
-                ),
-                HashState.Block(
-                    2, 0
-                )
-            ),
-            symbol = HashState.Block.Symbol.O
-        )
-    ),
-    HashState(4, 4),
-    HashState(5, 5)
+    HashState(3, 3).preview(),
+    HashState(4, 4).preview(),
+    HashState(5, 5).preview(),
+    HashState(5, 6).preview(),
 )
 
 @Composable
@@ -84,10 +65,7 @@ fun HomeScreen(
                     .border(
                         BorderStroke(2.dp, colors.primary),
                         RoundedCornerShape(5)
-                    )
-                    .padding(16.dp)
-                    .squareSize()
-
+                    ).padding(16.dp)
             )
         },
         options = {
