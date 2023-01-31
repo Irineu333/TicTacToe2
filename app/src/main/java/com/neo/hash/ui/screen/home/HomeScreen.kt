@@ -3,6 +3,7 @@
 package com.neo.hash.ui.screen.home
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.*
 import com.google.accompanist.pager.*
@@ -30,13 +32,11 @@ import com.neo.hash.ui.theme.HashBackground
 import com.neo.hash.ui.theme.HashTheme
 import com.neo.hash.util.extension.preview
 import com.neo.hash.util.extension.showAround
-import com.neo.hash.util.extension.squareSize
 
 internal val HashList = listOf(
     HashState(3, 3).preview(),
     HashState(4, 4).preview(),
     HashState(5, 5).preview(),
-    HashState(5, 6).preview(),
 )
 
 @Composable
@@ -49,24 +49,54 @@ fun HomeScreen(
     HomeAdaptiveContent(
         pageState = rememberPagerState(),
         modifier = modifier,
+        pagesCount = HashList.size + 1,
         hashTable = { pageIndex ->
-            HashTable(
-                hash = HashList[pageIndex],
-                enabledOnClick = false,
-                config = HashTableConfig.getDefault(
-                    symbol = HashTableConfig.Symbol(
-                        color = colors.primary,
-                        width = 2.dp,
-                        animate = false
+
+            if (pageIndex < HashList.size) {
+                HashTable(
+                    hash = HashList[pageIndex],
+                    enabledOnClick = false,
+                    config = HashTableConfig.getDefault(
+                        symbol = HashTableConfig.Symbol(
+                            color = colors.primary,
+                            width = 2.dp,
+                            animate = false
+                        )
+                    ),
+                    modifier = Modifier
+                        .showAround(pageIndex)
+                        .border(
+                            border = BorderStroke(2.dp, colors.primary),
+                            shape = RoundedCornerShape(5)
+                        )
+                        .padding(16.dp)
+                )
+            } else {
+                val hash by remember {
+                    mutableStateOf(
+                        HashState(6, 6).preview()
                     )
-                ),
-                modifier = Modifier
-                    .showAround(pageIndex)
-                    .border(
-                        BorderStroke(2.dp, colors.primary),
-                        RoundedCornerShape(5)
-                    ).padding(16.dp)
-            )
+                }
+
+                HashTable(
+                    hash = hash,
+                    enabledOnClick = false,
+                    config = HashTableConfig.getDefault(
+                        symbol = HashTableConfig.Symbol(
+                            color = colors.primary,
+                            width = 2.dp,
+                            animate = false
+                        )
+                    ),
+                    modifier = Modifier
+                        .showAround(pageIndex)
+                        .border(
+                            border = BorderStroke(2.dp, colors.primary),
+                            shape = RoundedCornerShape(5)
+                        )
+                        .padding(16.dp)
+                )
+            }
         },
         options = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {

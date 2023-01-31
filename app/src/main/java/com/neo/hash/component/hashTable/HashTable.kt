@@ -21,34 +21,31 @@ fun HashTable(
     modifier: Modifier = Modifier,
     onClick: (HashState.Block) -> Unit = {},
     enabledOnClick: Boolean = true,
-    decorationBox: @Composable BoxScope.(@Composable () -> Unit) -> Unit = { it() },
     config: HashTableConfig = HashTableConfig.getDefault()
 ) = Box(modifier) {
-    decorationBox {
-        Blocks(
-            hash = hash,
-            onClick = onClick,
-            enabledOnClick = enabledOnClick,
-            config = config.symbol,
-            modifier = Modifier.wrapContentSize()
-        )
+    Blocks(
+        hash = hash,
+        onClick = onClick,
+        enabledOnClick = enabledOnClick,
+        config = config.symbol,
+        modifier = Modifier.wrapContentSize()
+    )
 
-        Hash(
+    Hash(
+        rows = hash.rows,
+        columns = hash.columns,
+        config = config.hash,
+        modifier = Modifier.matchParentSize()
+    )
+
+    if (hash.winner != null) {
+        Winner(
             rows = hash.rows,
             columns = hash.columns,
-            config = config.hash,
+            winner = hash.winner,
+            config = config.scratch,
             modifier = Modifier.matchParentSize()
         )
-
-        if (hash.winner != null) {
-            Winner(
-                rows = hash.rows,
-                columns = hash.columns,
-                winner = hash.winner,
-                config = config.scratch,
-                modifier = Modifier.matchParentSize()
-            )
-        }
     }
 }
 

@@ -13,6 +13,7 @@ import com.google.accompanist.pager.*
 @Composable
 internal fun HomeAdaptiveContent(
     pageState: PagerState,
+    pagesCount: Int,
     options: @Composable () -> Unit,
     hashTable: @Composable context(BoxWithConstraintsScope, PagerScope) (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -20,6 +21,7 @@ internal fun HomeAdaptiveContent(
     if (maxHeight > maxWidth) {
         HomePortraitContent(
             pageState = pageState,
+            pagesCount = pagesCount,
             modifier = Modifier.fillMaxSize(),
             hashTable = { pageIndex ->
                 hashTable(this@BoxWithConstraints, this, pageIndex)
@@ -29,6 +31,7 @@ internal fun HomeAdaptiveContent(
     } else {
         HomeLandscapeContent(
             pageState = pageState,
+            pagesCount = pagesCount,
             modifier = Modifier.fillMaxSize(),
             hashTable = { pageIndex ->
                 hashTable(this@BoxWithConstraints, this, pageIndex)
@@ -41,7 +44,8 @@ internal fun HomeAdaptiveContent(
 @Composable
 internal fun HomeLandscapeContent(
     pageState: PagerState,
-    hashTable: @Composable PagerScope.(Int) -> Unit,
+    pagesCount: Int,
+    hashTable: @Composable() (PagerScope.(Int) -> Unit),
     options: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) = Row(
@@ -62,7 +66,7 @@ internal fun HomeLandscapeContent(
         val padding = (maxHeight - tableSize) / 2
 
         VerticalPager(
-            count = HashList.size,
+            count = pagesCount,
             state = pageState,
             contentPadding = PaddingValues(
                 vertical = padding.coerceAtLeast(
@@ -79,7 +83,8 @@ internal fun HomeLandscapeContent(
 @Composable
 internal fun HomePortraitContent(
     pageState: PagerState,
-    hashTable: @Composable PagerScope.(Int) -> Unit,
+    pagesCount: Int,
+    hashTable: @Composable() (PagerScope.(Int) -> Unit),
     options: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
@@ -94,7 +99,7 @@ internal fun HomePortraitContent(
         val padding = (maxWidth - tableSize) / 2
 
         HorizontalPager(
-            count = HashList.size,
+            count = pagesCount,
             state = pageState,
             contentPadding = PaddingValues(
                 horizontal = padding.coerceAtLeast(
