@@ -1,5 +1,7 @@
 package com.neo.hash.model
 
+import com.neo.hash.util.extension.updateAt
+
 data class HashState(
     val rows: Int,
     val columns: Int,
@@ -80,21 +82,6 @@ data class HashState(
                     column = column
                 )
             }
-        }
-    }
-}
-
-private fun <E> List<E>.updateAt(
-    index: Int,
-    update: (E) -> E
-): List<E> {
-    return List(size) {
-        val element = get(it)
-
-        if (it == index) {
-            update(element)
-        } else {
-            element
         }
     }
 }
