@@ -30,7 +30,7 @@ fun HashTable(
             onClick = onClick,
             enabledOnClick = enabledOnClick,
             config = config.symbol,
-            modifier = Modifier.matchParentSize()
+            modifier = Modifier.wrapContentSize()
         )
 
         Hash(
@@ -61,29 +61,35 @@ private fun Blocks(
     modifier: Modifier = Modifier
 ) = BoxWithConstraints(modifier) {
 
-    val rowSize = maxHeight / hash.rows
-    val columnSize = maxWidth / hash.columns
+    val width = maxWidth / hash.columns
+    val height = maxHeight / hash.rows
 
-    for (row in 0 until hash.rows) {
-        for (column in 0 until hash.columns) {
+    val size = minOf(width, height)
 
-            val block = hash[row, column]
+    Box(
+        Modifier.size(
+            width = size * hash.columns,
+            height = size * hash.rows,
+        )
+    ) {
+        for (row in 0 until hash.rows) {
+            for (column in 0 until hash.columns) {
 
-            Block(
-                block = block,
-                onClick = onClick,
-                enabledOnClick = enabledOnClick,
-                config = config,
-                modifier = Modifier
-                    .size(
-                        width = columnSize,
-                        height = rowSize
-                    )
-                    .offset(
-                        x = columnSize * column,
-                        y = rowSize * row,
-                    )
-            )
+                val block = hash[row, column]
+
+                Block(
+                    block = block,
+                    onClick = onClick,
+                    enabledOnClick = enabledOnClick,
+                    config = config,
+                    modifier = Modifier
+                        .size(size)
+                        .offset(
+                            x = size * column,
+                            y = size * row,
+                        )
+                )
+            }
         }
     }
 }
