@@ -7,7 +7,7 @@ fun HashState.preview(): HashState {
     var state: HashState = this
     val blocks = mutableListOf<HashState.Block>()
 
-    for (row in winnerBlocks.dec() downTo  0) {
+    for (row in 0 until winnerBlocks) {
 
         val column = winnerBlocks.dec() - row
 
