@@ -43,6 +43,16 @@ data class HashState(
         }
     )
 
+    fun updatedBlocks(
+        rows: Int = this.rows,
+        columns: Int = this.columns
+    ) = copy(
+        rows = rows,
+        columns = columns,
+        winnerBlocks = minOf(rows, columns),
+        blocks = emptyBlocks(rows, columns)
+    )
+
     data class Block(
         val row: Int,
         val column: Int,

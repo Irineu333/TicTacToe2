@@ -3,15 +3,15 @@
 package com.neo.hash.ui.screen.home
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -22,8 +22,11 @@ import com.google.accompanist.pager.*
 import com.neo.hash.annotation.DevicesPreview
 import com.neo.hash.annotation.ThemesPreview
 import com.neo.hash.component.box.DepthPageBox
+import com.neo.hash.component.button.CustomButton
 import com.neo.hash.component.hashTable.HashTable
 import com.neo.hash.component.hashTable.HashTableConfig
+import com.neo.hash.component.spacer.HorizontalSpacer
+import com.neo.hash.component.spacer.VerticalSpacer
 import com.neo.hash.model.HashState
 import com.neo.hash.ui.screen.start.GameMode
 import com.neo.hash.ui.screen.start.StartDialog
@@ -69,7 +72,7 @@ fun HomeScreen(
                             .padding(16.dp)
                     )
                 } else {
-                    val hash by remember {
+                    var hash by remember {
                         mutableStateOf(
                             HashState(6, 7).preview()
                         )
@@ -83,15 +86,115 @@ fun HomeScreen(
                                 color = colors.primary,
                                 width = 2.dp,
                                 animate = false
+                            ),
+                            scratch = HashTableConfig.Scratch(
+                                color = colors.primary.copy(alpha = 0.5f),
+                                width = 8.dp,
+                                animate = false
                             )
                         ),
                         modifier = Modifier
+                            .padding(
+                                horizontal = 9.dp,
+                                vertical = 9.dp
+                            )
                             .border(
                                 border = BorderStroke(2.dp, colors.primary),
                                 shape = RoundedCornerShape(5)
                             )
                             .padding(16.dp)
                     )
+
+                    Column(
+                        Modifier
+                            .align(
+                                Alignment.CenterEnd
+                            )
+                            .background(
+                                color = colors.primary,
+                                shape = RoundedCornerShape(50)
+                            )
+                            .width(20.dp)
+                            .padding(2.dp)
+                    ) {
+                        CustomButton(
+                            onClick = {
+                                hash = hash.updatedBlocks(
+                                    rows = hash.rows.inc(),
+                                ).preview()
+                            },
+                            indication = rememberRipple(bounded = false, radius = 10.dp),
+                            modifier = Modifier.aspectRatio(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription = null
+                            )
+                        }
+
+                        VerticalSpacer(size = 6.dp)
+
+                        CustomButton(
+                            onClick = {
+                                hash = hash.updatedBlocks(
+                                    rows = hash.rows.dec(),
+                                ).preview()
+                            },
+                            indication = rememberRipple(bounded = false, radius = 10.dp),
+                            modifier = Modifier.aspectRatio(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Remove,
+                                contentDescription = null
+                            )
+                        }
+                    }
+
+                    Row(
+                        Modifier
+                            .align(
+                                Alignment.TopCenter
+                            )
+                            .background(
+                                color = colors.primary,
+                                shape = RoundedCornerShape(50)
+                            )
+                            .height(20.dp)
+                            .padding(2.dp)
+                    ) {
+
+                        CustomButton(
+                            onClick = {
+                                hash = hash.updatedBlocks(
+                                    columns = hash.columns.dec(),
+                                ).preview()
+                            },
+                            indication = rememberRipple(bounded = false, radius = 10.dp),
+                            modifier = Modifier.aspectRatio(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Remove,
+                                contentDescription = null
+                            )
+                        }
+
+                        HorizontalSpacer(size = 6.dp)
+
+                        CustomButton(
+                            onClick = {
+                                hash = hash.updatedBlocks(
+                                    columns = hash.columns.inc(),
+                                ).preview()
+                            },
+                            indication = rememberRipple(bounded = false, radius = 10.dp),
+                            modifier = Modifier.aspectRatio(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription = null
+                            )
+                        }
+                    }
                 }
             }
         },
