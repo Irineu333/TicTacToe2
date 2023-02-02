@@ -15,8 +15,12 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.*
 import com.google.accompanist.pager.*
 import com.neo.hash.annotation.DevicesPreview
@@ -132,7 +136,21 @@ fun HomeScreen(
                             )
                         }
 
-                        VerticalSpacer(size = 6.dp)
+                        Text(
+                            text = "${hash.rows}",
+                            color = colors.onPrimary,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                ),
+                                fontSize = 11.sp
+                            ),
+                            modifier = Modifier
+                                .padding(
+                                    vertical = 2.dp
+                                )
+                                .align(CenterHorizontally)
+                        )
 
                         CustomButton(
                             onClick = {
@@ -174,11 +192,25 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Remove,
-                                contentDescription = null
+                                contentDescription = null,
                             )
                         }
 
-                        HorizontalSpacer(size = 6.dp)
+                        Text(
+                            text = "${hash.columns}",
+                            color = colors.onPrimary,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                ),
+                                fontSize = 10.sp
+                            ),
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = 2.dp
+                                )
+                                .align(CenterVertically)
+                        )
 
                         CustomButton(
                             onClick = {
