@@ -7,9 +7,9 @@ fun HashState.preview(): HashState {
     var state: HashState = this
     val blocks = mutableListOf<HashState.Block>()
 
-    for (row in 0 until winnerBlocks) {
+    for (column in 0 until  winnerBlocks) {
 
-        val column = winnerBlocks.dec() - row
+        val row = rows.dec() - column
 
         state = state.addedPlayer(
             row,
@@ -17,7 +17,9 @@ fun HashState.preview(): HashState {
             HashState.Block.Symbol.O
         )
 
-        blocks.add(HashState.Block(row, column))
+        blocks.add(
+            HashState.Block(row, column)
+        )
     }
 
     return state.copy(

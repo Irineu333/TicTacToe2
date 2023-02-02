@@ -49,7 +49,11 @@ data class HashState(
     ) = copy(
         rows = rows,
         columns = columns,
-        winnerBlocks = minOf(rows, columns),
+        winnerBlocks = if (winnerBlocks <= minOf(rows, columns)) {
+            winnerBlocks
+        } else {
+            minOf(rows, columns)
+        },
         blocks = emptyBlocks(rows, columns)
     )
 

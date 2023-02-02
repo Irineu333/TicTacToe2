@@ -1,6 +1,7 @@
 package com.neo.hash.component.hashTable
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
@@ -277,13 +278,13 @@ private fun Winner(
         val columnRadius = columnSize / 2
 
         val start = Offset(
-            x = startBlock.row.inc() * rowSize - rowRadius,
-            y = startBlock.column.inc() * columnSize - columnRadius
+            x = startBlock.column.inc() * rowSize - rowRadius,
+            y = startBlock.row.inc() * columnSize - columnRadius
         )
 
         val end = Offset(
-            x = endBlock.row.inc() * rowSize - rowRadius,
-            y = endBlock.column.inc() * columnSize - columnRadius
+            x = endBlock.column.inc() * rowSize - rowRadius,
+            y = endBlock.row.inc() * columnSize - columnRadius
         )
 
         val length = end - start
