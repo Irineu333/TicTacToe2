@@ -15,6 +15,7 @@ data class HashState(
         check(blocks.size == rows)
         check(blocks.all { it.size == columns })
         check(winnerBlocks <= minOf(rows, columns))
+        check(winnerBlocks >= 3)
     }
 
     operator fun get(row: Int, column: Int): Block {
@@ -46,20 +47,18 @@ data class HashState(
 
     fun updatedBlocks(
         rows: Int = this.rows,
-        columns: Int = this.columns
+        columns: Int = this.columns,
+        winnerBlocks: Int = this.winnerBlocks
     ): HashState {
 
         val internalRows = rows.coerceAtLeast(3)
         val internalColumns = columns.coerceAtLeast(3)
+        val internalWinnerBlocks = winnerBlocks.coerceIn(3, minOf(internalRows, internalColumns))
 
         return copy(
             rows = internalRows,
             columns = internalColumns,
-            winnerBlocks = if (winnerBlocks <= minOf(internalRows, internalColumns)) {
-                winnerBlocks
-            } else {
-                minOf(internalRows, internalColumns)
-            },
+            winnerBlocks = internalWinnerBlocks,
             blocks = emptyBlocks(internalRows, internalColumns)
         )
     }

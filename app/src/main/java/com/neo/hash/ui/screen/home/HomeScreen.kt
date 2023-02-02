@@ -227,6 +227,67 @@ fun HomeScreen(
                             )
                         }
                     }
+
+                    Row(
+                        Modifier
+                            .align(
+                                Alignment.BottomStart
+                            )
+                            .padding(start = 18.dp)
+                            .background(
+                                color = colors.primary,
+                                shape = RoundedCornerShape(50)
+                            )
+                            .height(20.dp)
+                            .padding(2.dp)
+                    ) {
+
+                        CustomButton(
+                            onClick = {
+                                hash = hash.updatedBlocks(
+                                    winnerBlocks = hash.winnerBlocks.dec(),
+                                ).preview()
+                            },
+                            indication = rememberRipple(bounded = false, radius = 10.dp),
+                            modifier = Modifier.aspectRatio(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Remove,
+                                contentDescription = null,
+                            )
+                        }
+
+                        Text(
+                            text = "${hash.winnerBlocks}",
+                            color = colors.onPrimary,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                ),
+                                fontSize = 10.sp
+                            ),
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = 2.dp
+                                )
+                                .align(CenterVertically)
+                        )
+
+                        CustomButton(
+                            onClick = {
+                                hash = hash.updatedBlocks(
+                                    winnerBlocks = hash.winnerBlocks.inc(),
+                                ).preview()
+                            },
+                            indication = rememberRipple(bounded = false, radius = 10.dp),
+                            modifier = Modifier.aspectRatio(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription = null
+                            )
+                        }
+                    }
                 }
             }
         },
