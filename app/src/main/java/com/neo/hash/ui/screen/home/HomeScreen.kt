@@ -99,19 +99,6 @@ fun HomeScreen(
                             Text(text = "columns")
                             Text(text = "winner")
                         }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
-                        ) {
-                            Button(onClick = { /*TODO*/ }) {
-                                Text(text = "Cancelar")
-                            }
-
-                            Button(onClick = { /*TODO*/ }) {
-                                Text(text = "Salvar")
-                            }
-                        }
                     }
                 }
             }
@@ -187,6 +174,22 @@ fun HomeScreen(
                         )
                     }
 
+                }
+            }
+
+            AnimatedVisibility(
+                visible = HashList.size == pageState.currentPage,
+                enter = fadeIn() + expandVertically(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { /*TODO*/ }) {
+                        Text(text = "Cancelar")
+                    }
+
+                    Button(onClick = { /*TODO*/ }) {
+                        Text(text = "Salvar")
+                    }
                 }
             }
         }
