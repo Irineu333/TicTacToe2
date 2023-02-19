@@ -15,10 +15,14 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomStart
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.*
@@ -29,14 +33,14 @@ import com.neo.hash.component.box.DepthPageBox
 import com.neo.hash.component.button.CustomButton
 import com.neo.hash.component.hashTable.HashTable
 import com.neo.hash.component.hashTable.HashTableConfig
-import com.neo.hash.component.spacer.HorizontalSpacer
-import com.neo.hash.component.spacer.VerticalSpacer
 import com.neo.hash.model.HashState
 import com.neo.hash.ui.screen.start.GameMode
 import com.neo.hash.ui.screen.start.StartDialog
 import com.neo.hash.ui.theme.HashBackground
 import com.neo.hash.ui.theme.HashTheme
 import com.neo.hash.util.extension.preview
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 internal val HashList = listOf(
     HashState(3, 3).preview(),
@@ -76,223 +80,21 @@ fun HomeScreen(
                             .padding(16.dp)
                     )
                 } else {
-                    var hash by remember {
-                        mutableStateOf(
-                            HashState(6, 7).preview()
-                        )
-                    }
-
-                    HashTable(
-                        hash = hash,
-                        enabledOnClick = false,
-                        config = HashTableConfig.getDefault(
-                            symbol = HashTableConfig.Symbol(
-                                color = colors.primary,
-                                width = 2.dp,
-                                animate = false
-                            ),
-                            scratch = HashTableConfig.Scratch(
-                                color = colors.primary.copy(alpha = 0.5f),
-                                width = 8.dp,
-                                animate = false
-                            )
-                        ),
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 9.dp,
-                                vertical = 9.dp
-                            )
-                            .border(
-                                border = BorderStroke(2.dp, colors.primary),
-                                shape = RoundedCornerShape(5)
-                            )
-                            .padding(16.dp)
-                    )
-
-                    Column(
-                        Modifier
-                            .align(
-                                Alignment.CenterEnd
-                            )
-                            .background(
-                                color = colors.primary,
-                                shape = RoundedCornerShape(50)
-                            )
-                            .width(20.dp)
-                            .padding(2.dp)
-                    ) {
-                        CustomButton(
-                            onClick = {
-                                hash = hash.updatedBlocks(
-                                    rows = hash.rows.inc(),
-                                ).preview()
-                            },
-                            indication = rememberRipple(bounded = false, radius = 10.dp),
-                            modifier = Modifier.aspectRatio(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Add,
-                                contentDescription = null
-                            )
-                        }
-
-                        Text(
-                            text = "${hash.rows}",
-                            color = colors.onPrimary,
-                            style = TextStyle(
-                                platformStyle = PlatformTextStyle(
-                                    includeFontPadding = false
-                                ),
-                                fontSize = 11.sp
-                            ),
-                            modifier = Modifier
-                                .padding(
-                                    vertical = 2.dp
-                                )
-                                .align(CenterHorizontally)
-                        )
-
-                        CustomButton(
-                            onClick = {
-                                hash = hash.updatedBlocks(
-                                    rows = hash.rows.dec(),
-                                ).preview()
-                            },
-                            indication = rememberRipple(bounded = false, radius = 10.dp),
-                            modifier = Modifier.aspectRatio(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Remove,
-                                contentDescription = null
-                            )
-                        }
-                    }
-
-                    Row(
-                        Modifier
-                            .align(
-                                Alignment.TopCenter
-                            )
-                            .background(
-                                color = colors.primary,
-                                shape = RoundedCornerShape(50)
-                            )
-                            .height(20.dp)
-                            .padding(2.dp)
-                    ) {
-
-                        CustomButton(
-                            onClick = {
-                                hash = hash.updatedBlocks(
-                                    columns = hash.columns.dec(),
-                                ).preview()
-                            },
-                            indication = rememberRipple(bounded = false, radius = 10.dp),
-                            modifier = Modifier.aspectRatio(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Remove,
-                                contentDescription = null,
-                            )
-                        }
-
-                        Text(
-                            text = "${hash.columns}",
-                            color = colors.onPrimary,
-                            style = TextStyle(
-                                platformStyle = PlatformTextStyle(
-                                    includeFontPadding = false
-                                ),
-                                fontSize = 10.sp
-                            ),
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 2.dp
-                                )
-                                .align(CenterVertically)
-                        )
-
-                        CustomButton(
-                            onClick = {
-                                hash = hash.updatedBlocks(
-                                    columns = hash.columns.inc(),
-                                ).preview()
-                            },
-                            indication = rememberRipple(bounded = false, radius = 10.dp),
-                            modifier = Modifier.aspectRatio(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Add,
-                                contentDescription = null
-                            )
-                        }
-                    }
-
-                    Row(
-                        Modifier
-                            .align(
-                                Alignment.BottomStart
-                            )
-                            .padding(start = 18.dp)
-                            .background(
-                                color = colors.primary,
-                                shape = RoundedCornerShape(50)
-                            )
-                            .height(20.dp)
-                            .padding(2.dp)
-                    ) {
-
-                        CustomButton(
-                            onClick = {
-                                hash = hash.updatedBlocks(
-                                    winnerBlocks = hash.winnerBlocks.dec(),
-                                ).preview()
-                            },
-                            indication = rememberRipple(bounded = false, radius = 10.dp),
-                            modifier = Modifier.aspectRatio(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Remove,
-                                contentDescription = null,
-                            )
-                        }
-
-                        Text(
-                            text = "${hash.winnerBlocks}",
-                            color = colors.onPrimary,
-                            style = TextStyle(
-                                platformStyle = PlatformTextStyle(
-                                    includeFontPadding = false
-                                ),
-                                fontSize = 10.sp
-                            ),
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = 2.dp
-                                )
-                                .align(CenterVertically)
-                        )
-
-                        CustomButton(
-                            onClick = {
-                                hash = hash.updatedBlocks(
-                                    winnerBlocks = hash.winnerBlocks.inc(),
-                                ).preview()
-                            },
-                            indication = rememberRipple(bounded = false, radius = 10.dp),
-                            modifier = Modifier.aspectRatio(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Add,
-                                contentDescription = null
-                            )
-                        }
-                    }
+                   Column(
+                       Modifier
+                           .border(
+                               border = BorderStroke(2.dp, colors.primary),
+                               shape = RoundedCornerShape(5)
+                           )
+                           .padding(16.dp)
+                   ) {
+                       Text(text = "Options")
+                   }
                 }
             }
         },
         options = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(horizontalAlignment = CenterHorizontally) {
 
                 OutlinedButton(
                     onClick = {
@@ -383,4 +185,20 @@ private fun DefaultPreview() {
             HomeScreen(Modifier.fillMaxSize())
         }
     }
+}
+
+fun diagonal(value: Dp): Dp {
+    return diagonal(value.value.toDouble()).dp
+}
+
+fun diagonal(x: Dp, y: Dp): Dp {
+    return diagonal(x.value.toDouble(), y.value.toDouble()).dp
+}
+
+fun diagonal(value: Double): Double {
+    return value * sqrt(2f)
+}
+
+fun diagonal(x: Double, y: Double): Double {
+    return sqrt(x.pow(2) + y.pow(2))
 }

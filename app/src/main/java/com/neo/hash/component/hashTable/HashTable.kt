@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
 import com.neo.hash.component.cavas.CanvasWithCache
 import com.neo.hash.model.AnimatableSaver
 import com.neo.hash.model.HashState
@@ -39,14 +40,14 @@ fun HashTable(
             onClick = onClick,
             enabledOnClick = enabledOnClick,
             config = config.symbol,
-            modifier = Modifier.matchParentSize()
+            modifier = Modifier.fillMaxSize()
         )
 
         Hash(
             rows = hash.rows,
             columns = hash.columns,
             config = config.hash,
-            modifier = Modifier.matchParentSize()
+            modifier = Modifier.fillMaxSize()
         )
 
         if (hash.winner != null) {
@@ -55,7 +56,7 @@ fun HashTable(
                 columns = hash.columns,
                 winner = hash.winner,
                 config = config.scratch,
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
