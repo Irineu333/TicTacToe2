@@ -1,8 +1,9 @@
-@file:OptIn(ExperimentalPagerApi::class)
+@file:OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
 
 package com.neo.hash.ui.screen.home
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -94,101 +95,100 @@ fun HomeScreen(
                             )
                             .padding(16.dp)
                     ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(text = "rows")
-                            Text(text = "columns")
-                            Text(text = "winner")
-                        }
+                        Text(text = "rows")
+                        Text(text = "columns")
+                        Text(text = "winner")
                     }
                 }
             }
         },
         options = {
-            AnimatedVisibility(
-                visible = HashList.size > pageState.currentPage,
-                enter = fadeIn() + expandVertically(),
-                exit = shrinkVertically() + fadeOut(),
-            ) {
-                Column(horizontalAlignment = CenterHorizontally) {
-
-                    OutlinedButton(
-                        onClick = {
-                            startDialog = GameMode.PHONE
-                        },
-                        border = ButtonDefaults.outlinedBorder.copy(
-                            brush = SolidColor(colors.primary)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Person,
-                            contentDescription = null,
-                        )
-
-                        Text(text = "vs", fontSize = 16.sp)
-
-                        Icon(
-                            imageVector = Icons.Rounded.PhoneAndroid,
-                            contentDescription = null
-                        )
-                    }
-
-                    OutlinedButton(
-                        onClick = {
-                            startDialog = GameMode.INPUT
-                        },
-                        border = ButtonDefaults.outlinedBorder.copy(
-                            brush = SolidColor(colors.primary)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Person,
-                            contentDescription = null,
-                        )
-
-                        Text(text = "vs", fontSize = 16.sp)
-
-                        Icon(
-                            imageVector = Icons.Rounded.Person,
-                            contentDescription = null,
-                        )
-                    }
-
-                    OutlinedButton(
-                        onClick = {
-                            startDialog = GameMode.REMOTE
-                        },
-                        border = ButtonDefaults.outlinedBorder.copy(
-                            brush = SolidColor(colors.primary)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Person,
-                            contentDescription = null,
-                        )
-
-                        Text(text = "vs", fontSize = 16.sp)
-
-                        Icon(
-                            imageVector = Icons.Rounded.Language,
-                            contentDescription = null,
-                        )
-                    }
-
+            AnimatedContent(
+                targetState = HashList.size == pageState.currentPage,
+                transitionSpec = {
+                    fadeIn() + slideInVertically() with
+                        slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
                 }
-            }
+            ) { isConfigOptions ->
+                if (isConfigOptions) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalAlignment = CenterHorizontally
+                    ) {
+                        Button(onClick = { /*TODO*/ }) {
+                            Text(text = "Cancelar")
+                        }
 
-            AnimatedVisibility(
-                visible = HashList.size == pageState.currentPage,
-                enter = fadeIn() + expandVertically(),
-                exit = shrinkVertically() + fadeOut(),
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { /*TODO*/ }) {
-                        Text(text = "Cancelar")
+                        Button(onClick = { /*TODO*/ }) {
+                            Text(text = "Salvar")
+                        }
                     }
+                } else {
+                    Column(horizontalAlignment = CenterHorizontally) {
 
-                    Button(onClick = { /*TODO*/ }) {
-                        Text(text = "Salvar")
+                        OutlinedButton(
+                            onClick = {
+                                startDialog = GameMode.PHONE
+                            },
+                            border = ButtonDefaults.outlinedBorder.copy(
+                                brush = SolidColor(colors.primary)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Person,
+                                contentDescription = null,
+                            )
+
+                            Text(text = "vs", fontSize = 16.sp)
+
+                            Icon(
+                                imageVector = Icons.Rounded.PhoneAndroid,
+                                contentDescription = null
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                startDialog = GameMode.INPUT
+                            },
+                            border = ButtonDefaults.outlinedBorder.copy(
+                                brush = SolidColor(colors.primary)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Person,
+                                contentDescription = null,
+                            )
+
+                            Text(text = "vs", fontSize = 16.sp)
+
+                            Icon(
+                                imageVector = Icons.Rounded.Person,
+                                contentDescription = null,
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                startDialog = GameMode.REMOTE
+                            },
+                            border = ButtonDefaults.outlinedBorder.copy(
+                                brush = SolidColor(colors.primary)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Person,
+                                contentDescription = null,
+                            )
+
+                            Text(text = "vs", fontSize = 16.sp)
+
+                            Icon(
+                                imageVector = Icons.Rounded.Language,
+                                contentDescription = null,
+                            )
+                        }
+
                     }
                 }
             }
