@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.Dp
@@ -64,15 +63,24 @@ fun HomeScreen(
         modifier = modifier,
         pagesCount = HashList.size + 1,
         hashTable = { pageIndex ->
+
             DepthPageBox(pageIndex) {
                 if (pageIndex < HashList.size) {
+
+                    val symbol = HashTableConfig.Symbol(
+                        color = colors.primary,
+                        width = 2.dp,
+                        animate = false
+                    )
+
                     HashTable(
                         hash = HashList[pageIndex],
                         enabledOnClick = false,
                         config = HashTableConfig.getDefault(
-                            symbol = HashTableConfig.Symbol(
-                                color = colors.primary,
-                                width = 2.dp,
+                            symbol = symbol,
+                            scratch = HashTableConfig.Scratch(
+                                color = symbol.color.copy(alpha = 0.5f),
+                                width = 8.dp,
                                 animate = false
                             )
                         ),
@@ -84,6 +92,7 @@ fun HomeScreen(
                             .padding(16.dp)
                     )
                 } else {
+
                     Column(
                         Modifier
                             .squareSize()
@@ -91,95 +100,86 @@ fun HomeScreen(
                                 border = BorderStroke(2.dp, colors.primary),
                                 shape = RoundedCornerShape(5)
                             )
-                            .padding(16.dp)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = "rows")
-                        Text(text = "columns")
-                        Text(text = "winner")
+
                     }
                 }
             }
         },
         startGameOptions = {
-            Column(horizontalAlignment = CenterHorizontally) {
 
-                OutlinedButton(
-                    onClick = {
-                        startDialog = GameMode.PHONE
-                    },
-                    border = ButtonDefaults.outlinedBorder.copy(
-                        brush = SolidColor(colors.primary)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Person,
-                        contentDescription = null,
-                    )
+            OutlinedButton(
+                onClick = {
+                    startDialog = GameMode.PHONE
+                },
+                border = ButtonDefaults.outlinedBorder.copy(
+                    brush = SolidColor(colors.primary)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Person,
+                    contentDescription = null,
+                )
 
-                    Text(text = "vs", fontSize = 16.sp)
+                Text(text = "vs", fontSize = 16.sp)
 
-                    Icon(
-                        imageVector = Icons.Rounded.PhoneAndroid,
-                        contentDescription = null
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Rounded.PhoneAndroid,
+                    contentDescription = null
+                )
+            }
 
-                OutlinedButton(
-                    onClick = {
-                        startDialog = GameMode.INPUT
-                    },
-                    border = ButtonDefaults.outlinedBorder.copy(
-                        brush = SolidColor(colors.primary)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Person,
-                        contentDescription = null,
-                    )
+            OutlinedButton(
+                onClick = {
+                    startDialog = GameMode.INPUT
+                },
+                border = ButtonDefaults.outlinedBorder.copy(
+                    brush = SolidColor(colors.primary)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Person,
+                    contentDescription = null,
+                )
 
-                    Text(text = "vs", fontSize = 16.sp)
+                Text(text = "vs", fontSize = 16.sp)
 
-                    Icon(
-                        imageVector = Icons.Rounded.Person,
-                        contentDescription = null,
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Rounded.Person,
+                    contentDescription = null,
+                )
+            }
 
-                OutlinedButton(
-                    onClick = {
-                        startDialog = GameMode.REMOTE
-                    },
-                    border = ButtonDefaults.outlinedBorder.copy(
-                        brush = SolidColor(colors.primary)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Person,
-                        contentDescription = null,
-                    )
+            OutlinedButton(
+                onClick = {
+                    startDialog = GameMode.REMOTE
+                },
+                border = ButtonDefaults.outlinedBorder.copy(
+                    brush = SolidColor(colors.primary)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Person,
+                    contentDescription = null,
+                )
 
-                    Text(text = "vs", fontSize = 16.sp)
+                Text(text = "vs", fontSize = 16.sp)
 
-                    Icon(
-                        imageVector = Icons.Rounded.Language,
-                        contentDescription = null,
-                    )
-                }
-
+                Icon(
+                    imageVector = Icons.Rounded.Language,
+                    contentDescription = null,
+                )
             }
         },
         saveHashOptions = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                Button(onClick = { /*TODO*/ }) {
-                    Text(text = "Cancelar")
-                }
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "Cancelar")
+            }
 
-                Button(onClick = { /*TODO*/ }) {
-                    Text(text = "Salvar")
-                }
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "Salvar")
             }
         },
     )

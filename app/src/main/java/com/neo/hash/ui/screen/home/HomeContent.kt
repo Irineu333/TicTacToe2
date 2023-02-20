@@ -3,12 +3,12 @@
 package com.neo.hash.ui.screen.home
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.*
@@ -47,7 +47,10 @@ internal fun HomeAdaptiveContent(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) { isHashOptions ->
-                    Box(contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         if (isHashOptions) {
                             saveHashOptions()
                         } else {
@@ -82,7 +85,10 @@ internal fun HomeAdaptiveContent(
                     },
                     modifier = Modifier.fillMaxHeight()
                 ) { isHashOptions ->
-                    Box(contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         if (isHashOptions) {
                             saveHashOptions()
                         } else {
