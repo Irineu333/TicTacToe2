@@ -2,38 +2,36 @@
 
 package com.neo.hash.ui.screen.home
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomEnd
-import androidx.compose.ui.Alignment.Companion.BottomStart
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.*
-import com.google.accompanist.pager.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.neo.hash.annotation.DevicesPreview
 import com.neo.hash.annotation.ThemesPreview
 import com.neo.hash.component.box.DepthPageBox
-import com.neo.hash.component.button.CustomButton
 import com.neo.hash.component.hashTable.HashTable
 import com.neo.hash.component.hashTable.HashTableConfig
 import com.neo.hash.model.HashState
@@ -102,97 +100,88 @@ fun HomeScreen(
                 }
             }
         },
-        options = {
-            AnimatedContent(
-                targetState = HashList.size == pageState.currentPage,
-                transitionSpec = {
-                    fadeIn() + slideInVertically() with
-                        slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut()
+        startGameOptions = {
+            Column(horizontalAlignment = CenterHorizontally) {
+
+                OutlinedButton(
+                    onClick = {
+                        startDialog = GameMode.PHONE
+                    },
+                    border = ButtonDefaults.outlinedBorder.copy(
+                        brush = SolidColor(colors.primary)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Person,
+                        contentDescription = null,
+                    )
+
+                    Text(text = "vs", fontSize = 16.sp)
+
+                    Icon(
+                        imageVector = Icons.Rounded.PhoneAndroid,
+                        contentDescription = null
+                    )
                 }
-            ) { isConfigOptions ->
-                if (isConfigOptions) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        horizontalAlignment = CenterHorizontally
-                    ) {
-                        Button(onClick = { /*TODO*/ }) {
-                            Text(text = "Cancelar")
-                        }
 
-                        Button(onClick = { /*TODO*/ }) {
-                            Text(text = "Salvar")
-                        }
-                    }
-                } else {
-                    Column(horizontalAlignment = CenterHorizontally) {
+                OutlinedButton(
+                    onClick = {
+                        startDialog = GameMode.INPUT
+                    },
+                    border = ButtonDefaults.outlinedBorder.copy(
+                        brush = SolidColor(colors.primary)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Person,
+                        contentDescription = null,
+                    )
 
-                        OutlinedButton(
-                            onClick = {
-                                startDialog = GameMode.PHONE
-                            },
-                            border = ButtonDefaults.outlinedBorder.copy(
-                                brush = SolidColor(colors.primary)
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Person,
-                                contentDescription = null,
-                            )
+                    Text(text = "vs", fontSize = 16.sp)
 
-                            Text(text = "vs", fontSize = 16.sp)
+                    Icon(
+                        imageVector = Icons.Rounded.Person,
+                        contentDescription = null,
+                    )
+                }
 
-                            Icon(
-                                imageVector = Icons.Rounded.PhoneAndroid,
-                                contentDescription = null
-                            )
-                        }
+                OutlinedButton(
+                    onClick = {
+                        startDialog = GameMode.REMOTE
+                    },
+                    border = ButtonDefaults.outlinedBorder.copy(
+                        brush = SolidColor(colors.primary)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Person,
+                        contentDescription = null,
+                    )
 
-                        OutlinedButton(
-                            onClick = {
-                                startDialog = GameMode.INPUT
-                            },
-                            border = ButtonDefaults.outlinedBorder.copy(
-                                brush = SolidColor(colors.primary)
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Person,
-                                contentDescription = null,
-                            )
+                    Text(text = "vs", fontSize = 16.sp)
 
-                            Text(text = "vs", fontSize = 16.sp)
+                    Icon(
+                        imageVector = Icons.Rounded.Language,
+                        contentDescription = null,
+                    )
+                }
 
-                            Icon(
-                                imageVector = Icons.Rounded.Person,
-                                contentDescription = null,
-                            )
-                        }
+            }
+        },
+        saveHashOptions = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = CenterHorizontally
+            ) {
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "Cancelar")
+                }
 
-                        OutlinedButton(
-                            onClick = {
-                                startDialog = GameMode.REMOTE
-                            },
-                            border = ButtonDefaults.outlinedBorder.copy(
-                                brush = SolidColor(colors.primary)
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Person,
-                                contentDescription = null,
-                            )
-
-                            Text(text = "vs", fontSize = 16.sp)
-
-                            Icon(
-                                imageVector = Icons.Rounded.Language,
-                                contentDescription = null,
-                            )
-                        }
-
-                    }
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "Salvar")
                 }
             }
-        }
+        },
     )
 
     startDialog?.let {

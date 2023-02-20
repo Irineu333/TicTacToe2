@@ -1,11 +1,14 @@
-@file:OptIn(ExperimentalPagerApi::class)
+@file:OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
 
 package com.neo.hash.ui.screen.home
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.*
@@ -14,7 +17,8 @@ import com.google.accompanist.pager.*
 internal fun HomeAdaptiveContent(
     pageState: PagerState,
     pagesCount: Int,
-    options: @Composable () -> Unit,
+    startGameOptions: @Composable () -> Unit,
+    saveHashOptions: @Composable () -> Unit,
     hashTable: @Composable context(BoxWithConstraintsScope, PagerScope) (Int) -> Unit,
     modifier: Modifier = Modifier
 ) = BoxWithConstraints(modifier) {
@@ -26,7 +30,32 @@ internal fun HomeAdaptiveContent(
             hashTable = { pageIndex ->
                 hashTable(this@BoxWithConstraints, this, pageIndex)
             },
-            options = options
+            options = {
+                AnimatedContent(
+                    targetState = HashList.size == pageState.currentPage,
+                    transitionSpec = {
+                        if (targetState) {
+                            fadeIn() + slideInHorizontally(
+                                initialOffsetX = { it / 2 }
+                            ) with slideOutHorizontally() + fadeOut()
+                        } else {
+                            fadeIn() + slideInHorizontally() with
+                                    slideOutHorizontally(
+                                        targetOffsetX = { it / 2 }
+                                    ) + fadeOut()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { isHashOptions ->
+                    Box(contentAlignment = Alignment.Center) {
+                        if (isHashOptions) {
+                            saveHashOptions()
+                        } else {
+                            startGameOptions()
+                        }
+                    }
+                }
+            }
         )
     } else {
         HomeLandscapeContent(
@@ -36,7 +65,32 @@ internal fun HomeAdaptiveContent(
             hashTable = { pageIndex ->
                 hashTable(this@BoxWithConstraints, this, pageIndex)
             },
-            options = options
+            options =  {
+                AnimatedContent(
+                    targetState = HashList.size == pageState.currentPage,
+                    transitionSpec = {
+                        if (targetState) {
+                            fadeIn() + slideInVertically(
+                                initialOffsetY = { it / 2 }
+                            ) with slideOutVertically() + fadeOut()
+                        } else {
+                            fadeIn() + slideInVertically() with
+                                    slideOutVertically(
+                                        targetOffsetY = { it / 2 }
+                                    ) + fadeOut()
+                        }
+                    },
+                    modifier = Modifier.fillMaxHeight()
+                ) { isHashOptions ->
+                    Box(contentAlignment = Alignment.Center) {
+                        if (isHashOptions) {
+                            saveHashOptions()
+                        } else {
+                            startGameOptions()
+                        }
+                    }
+                }
+            }
         )
     }
 }
